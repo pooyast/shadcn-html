@@ -42,11 +42,11 @@
 
 | `data-variant`  | Surface              | Text                     | Hover                          |
 |-----------------|----------------------|--------------------------|--------------------------------|
-| `default`       | `--primary`          | `--primary-foreground`   | `opacity: 0.88`               |
-| `secondary`     | `--secondary`        | `--secondary-foreground` | `opacity: 0.8`                |
-| `outline`       | `--background` + border + shadow-xs | `--foreground`  | `--accent` bg                  |
-| `ghost`         | transparent          | `--foreground`           | `--accent` bg                  |
-| `destructive`   | `--destructive`      | `--destructive-foreground` | `opacity: 0.88`             |
+| `default` | `--primary` | `--primary-foreground` | 80% primary fill |
+| `secondary` | `--secondary` | `--secondary-foreground` | Mix in 5% foreground |
+| `outline` | `--background` with border | `--foreground` | `--muted` fill |
+| `ghost` | transparent | `--foreground` | `--muted` fill |
+| `destructive` | 10% destructive fill | `--destructive` | 20% destructive fill |
 | `link`          | transparent          | `--primary`              | underline                      |
 
 ---
@@ -55,14 +55,14 @@
 
 | `data-size` | Height    | Padding       | Font size    | Border radius       |
 |-------------|-----------|---------------|--------------|---------------------|
-| `xs`        | `1.75rem` | `0 0.5rem`    | `0.75rem`    | `var(--radius-sm)`  |
-| `sm`        | `2rem`    | `0 0.75rem`   | `0.8125rem`  | `var(--radius-md)`  |
-| *(default)* | `2.25rem` | `0 1rem`      | `0.875rem`   | `var(--radius-md)`  |
-| `lg`        | `2.75rem` | `0 2rem`      | `1rem`       | `var(--radius-md)`  |
-| `icon`      | `2.25rem` | `0` (square)  | —            | `var(--radius-md)`  |
-| `icon-xs`   | `1.75rem` | `0` (square)  | —            | `var(--radius-sm)`  |
-| `icon-sm`   | `2rem`    | `0` (square)  | —            | `var(--radius-md)`  |
-| `icon-lg`   | `2.75rem` | `0` (square)  | —            | `var(--radius-md)`  |
+| `xs`        | `1.5rem`  | `0 0.5rem`   | `0.75rem`    | `min(var(--radius-md), 10px)` |
+| `sm`        | `1.75rem` | `0 0.625rem` | `0.8rem`     | `min(var(--radius-md), 12px)` |
+| *(default)* | `2rem`    | `0 0.625rem` | `0.875rem`   | `var(--radius-lg)` |
+| `lg`        | `2.25rem` | `0 0.625rem` | `0.875rem`   | `var(--radius-lg)` |
+| `icon`      | `2rem`    | `0` (square)  | — | `var(--radius-lg)` |
+| `icon-xs`   | `1.5rem`  | `0` (square)  | — | `min(var(--radius-md), 10px)` |
+| `icon-sm`   | `1.75rem` | `0` (square)  | — | `min(var(--radius-md), 12px)` |
+| `icon-lg`   | `2.25rem` | `0` (square)  | — | `var(--radius-lg)` |
 
 ---
 
@@ -77,6 +77,5 @@
 
 ## Notes
 
-- The `link` variant resets height and padding — it flows inline.
 - SVGs inside buttons auto-size to 1rem unless they have a `size-*` class.
 - The button works on `<a>` tags for styled navigation links.

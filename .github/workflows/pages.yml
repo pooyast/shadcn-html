@@ -1,0 +1,56 @@
+name: Cloudflare Pages
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: madcn-pages-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    environment: ${{ github.event_name == 'pull_request' && 'preview' || 'production' }}
+    env:
+      PAGES_BRANCH: ${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || 'main' }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps
+      - run: npm test
+      - name: Stage preview and its reference fixtures
+        if: github.event_name == 'pull_request'
+        run: |
+          npx vite build --config tests/reference/vite.config.mjs
+          node scripts/stage-pages.mjs --preview
+      - name: Stage production
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        run: node scripts/stage-pages.mjs
+      - name: Deploy and verify
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
+        run: |
+          set -euo pipefail
+          npx --yes wrangler@4.128.0 pages deploy .pages-stage --project-name madcn \
+            --branch "$PAGES_BRANCH" --commit-hash "$GITHUB_SHA" --commit-dirty=false
+          host=https://madcn.pages.dev
+          if [ "$PAGES_BRANCH" != main ]; then host="https://$PAGES_BRANCH.madcn.pages.dev"; fi
+          bash scripts/verify-pages.sh "$host"
+          if [ "$PAGES_BRANCH" != main ]; then
+            curl --retry 6 --retry-all-errors -fsSL "$host/tests/reference/" -o /dev/null
+          fi
+          printf '%s\n' "$host" >> "$GITHUB_STEP_SUMMARY"

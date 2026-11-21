@@ -10,17 +10,17 @@
     margin: auto;
     position: fixed;
     inset: 0;
-    max-width: 28rem;
+    max-width: calc(100% - 2rem);
     width: calc(100vw - 2rem);
     max-height: calc(100vh - 2rem);
-    box-shadow: 0 25px 80px oklch(0 0 0 / 0.25), 0 0 0 1px var(--border);
+    box-shadow: 0 0 0 1px color-mix(in oklch, var(--foreground) 10%, transparent);
     opacity: 0;
-    transform: translateY(-0.5rem) scale(0.98);
-    transition: opacity 200ms ease, transform 200ms ease, display 200ms allow-discrete;
+    transform: scale(0.95);
+    transition: opacity 100ms ease, transform 100ms ease, display 100ms allow-discrete, overlay 100ms allow-discrete;
 
     &[open] {
       opacity: 1;
-      transform: translateY(0) scale(1);
+      transform: scale(1);
     }
 
     /* -- Sizes ------------------------------------------------ */
@@ -33,19 +33,19 @@
     &::backdrop {
       background: oklch(0 0 0 / 0);
       backdrop-filter: blur(0px);
-      transition: all 200ms ease, display 200ms allow-discrete;
+      transition: all 100ms ease, display 100ms allow-discrete, overlay 100ms allow-discrete;
     }
 
     &[open]::backdrop {
-      background: oklch(0 0 0 / 0.45);
-      backdrop-filter: blur(3px);
+      background: oklch(0 0 0 / 0.10);
+      backdrop-filter: blur(4px);
     }
   }
 
   @starting-style {
     dialog.dialog[open] {
       opacity: 0;
-      transform: translateY(-0.5rem) scale(0.98);
+      transform: scale(0.95);
     }
 
     dialog.dialog[open]::backdrop {
@@ -55,10 +55,27 @@
   }
 
   /* -- Content sections ------------------------------------- */
-  .dialog-content { padding: 1.5rem; }
+  .dialog-content { padding: 1rem; }
   .dialog-header  { margin-bottom: 1rem; }
-  .dialog-title   { font-size: 1.0625rem; font-weight: 600; margin: 0 0 0.375rem; letter-spacing: -0.01em; }
-  .dialog-description { font-size: 0.875rem; color: var(--muted-foreground); margin: 0; line-height: 1.6; }
+  .dialog-title   { font-size: 1rem; font-weight: 600; margin: 0 0 0.375rem; letter-spacing: -0.01em; }
+  .dialog-description { font-size: 0.875rem; color: var(--muted-foreground); margin: 0; line-height: 1.25rem; }
   .dialog-body    { margin-top: 1rem; }
-  .dialog-footer  { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1.5rem; }
+  .dialog-footer {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 0.5rem;
+    margin: 1rem -1rem -1rem;
+    padding: 1rem;
+    border-block-start: 1px solid var(--border);
+    background: color-mix(in oklch, var(--muted) 50%, transparent);
+  }
+
+  @media (min-width: 40rem) {
+    dialog.dialog { max-width: 24rem; }
+    .dialog-footer { flex-direction: row; justify-content: flex-end; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    dialog.dialog, dialog.dialog::backdrop { transition: none; }
+  }
 }

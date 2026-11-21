@@ -3,7 +3,6 @@
 
 function init() {
   document.querySelectorAll('.combobox:not([data-init])').forEach((wrapper) => {
-    wrapper.dataset.init = '';
     const trigger = wrapper.querySelector('.combobox-trigger');
     const valueEl = wrapper.querySelector('.combobox-value');
     const popover = wrapper.querySelector('.combobox-content');
@@ -12,6 +11,7 @@ function init() {
     const empty = wrapper.querySelector('.combobox-empty');
     if (!trigger || !popover || !searchInput || !listbox) return;
 
+    wrapper.dataset.init = '';
     const allItems = Array.from(listbox.querySelectorAll('[role="option"]'));
     let highlighted = -1;
 
@@ -31,7 +31,6 @@ function init() {
     const close = () => {
       popover.hidePopover();
       trigger.setAttribute('aria-expanded', 'false');
-      searchInput.setAttribute('aria-activedescendant', '');
       clearHighlight();
       trigger.focus();
     };
@@ -49,13 +48,17 @@ function init() {
       listbox.querySelectorAll('.combobox-separator').forEach((sep) => { const prev = sep.previousElementSibling; const next = sep.nextElementSibling; sep.hidden = (prev && prev.hidden) || (next && next.hidden); });
       if (empty) empty.hidden = hasVisible;
     };
-    const clearHighlight = () => { allItems.forEach((item) => { delete item.dataset.highlighted; }); highlighted = -1; };
+    const clearHighlight = () => {
+      allItems.forEach((item) => { delete item.dataset.highlighted; });
+      searchInput.removeAttribute('aria-activedescendant');
+      highlighted = -1;
+    };
     const doHighlight = (index) => {
       const items = getVisibleItems(); clearHighlight();
       if (index < 0 || index >= items.length) return;
       highlighted = index; items[index].dataset.highlighted = '';
       items[index].scrollIntoView({ block: 'nearest' });
-      searchInput.setAttribute('aria-activedescendant', items[index].id);
+      if (items[index].id) searchInput.setAttribute('aria-activedescendant', items[index].id);
     };
     const selectItem = (item) => {
       if (item.getAttribute('aria-disabled') === 'true') return;
@@ -67,12 +70,11 @@ function init() {
     trigger.addEventListener('click', () => { if (isOpen()) { close(); } else { open(); } });
     searchInput.addEventListener('input', () => { filter(searchInput.value); doHighlight(0); });
     searchInput.addEventListener('keydown', (e) => {
+      if (e.isComposing) return;
       const items = getVisibleItems();
       switch (e.key) {
         case 'ArrowDown': e.preventDefault(); doHighlight(Math.min(highlighted + 1, items.length - 1)); break;
         case 'ArrowUp': e.preventDefault(); doHighlight(Math.max(highlighted - 1, 0)); break;
-        case 'Home': e.preventDefault(); doHighlight(0); break;
-        case 'End': e.preventDefault(); doHighlight(items.length - 1); break;
         case 'Enter': e.preventDefault(); if (highlighted >= 0 && items[highlighted]) selectItem(items[highlighted]); break;
         case 'Escape': e.preventDefault(); close(); break;
         case 'Tab': close(); break;

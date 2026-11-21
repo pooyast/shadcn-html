@@ -65,7 +65,7 @@ Requires minimal JavaScript — only for trigger wiring and backdrop-click-to-cl
 | `data-size` | Max width  | Use case                         |
 |-------------|------------|----------------------------------|
 | `sm`        | `24rem`    | Confirmations, simple alerts     |
-| *(default)* | `28rem`    | Standard forms, content          |
+| *(default)* | `24rem`    | Standard forms on viewports at least 40rem wide          |
 | `lg`        | `32rem`    | Complex forms, rich content      |
 | `xl`        | `40rem`    | Data-heavy, multi-column layouts |
 | `full`      | `calc(100vw - 2rem)` | Full-screen modal        |

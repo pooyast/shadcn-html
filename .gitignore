@@ -3,3 +3,11 @@ node_modules
 
 # Local Netlify folder
 .netlify
+
+# Browser test output
+/test-results/
+/playwright-report/
+
+# Cloudflare deployment build output
+/.pages-reference/
+/.pages-stage/

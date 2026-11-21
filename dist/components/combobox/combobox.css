@@ -15,8 +15,12 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     flex: 1;
-    text-align: left;
+    text-align: start;
     font-weight: 400;
+  }
+
+  @media (max-width: 47.999rem) {
+    .combobox-value { font-size: 1rem; }
   }
 
   .combobox-value[data-placeholder] {
@@ -99,12 +103,15 @@
     padding: 0.25rem;
   }
 
+  .combobox-item:not([hidden]) { display: flex; }
+
   .combobox-item {
-    display: flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.375rem 0.5rem;
-    border-radius: calc(var(--radius) * 0.6);
+    padding-block: 0.25rem;
+    padding-inline: 0.375rem 2rem;
+    position: relative;
+    border-radius: var(--radius-md);
     font-size: 0.875rem;
     cursor: pointer;
     outline: none;
@@ -115,13 +122,15 @@
       color: var(--accent-foreground);
     }
 
-    &[aria-selected="true"]::before {
+    &[aria-selected="true"]::after {
       content: '';
-      display: inline-block;
+      position: absolute;
+      inset-inline-end: 0.5rem;
       width: 1rem;
       height: 1rem;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E");
-      background-size: contain;
+      background-color: currentColor;
+      mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E");
+      mask-size: contain;
       flex-shrink: 0;
     }
 

@@ -124,8 +124,8 @@
 
             <p style="margin:0 0 0.5rem;font-weight:600;font-size:0.8125rem;font-family:var(--font-mono);">Sizes (data-size)</p>
             <div style="display:grid;grid-template-columns:auto 1fr;gap:0.25rem 1rem;margin-bottom:1.25rem;">
-              <code>sm</code><span class="text-muted-foreground">Height: 2rem</span>
-              <code>lg</code><span class="text-muted-foreground">Height: 2.75rem</span>
+              <code>sm</code><span class="text-muted-foreground">Height: 1.75rem</span>
+              <code>lg</code><span class="text-muted-foreground">Height: 2.25rem</span>
             </div>
 
 
@@ -415,22 +415,23 @@
 
 @layer components {
   .input {
-    height: 2.5rem;
+    height: 2rem;
+    box-sizing: border-box;
+    min-width: 0;
     width: 100%;
     border: 1px solid var(--input);
-    border-radius: var(--radius-md);
-    background: var(--background);
-    padding: 0 0.75rem;
-    font-size: 0.875rem;
+    border-radius: var(--radius-lg);
+    background: transparent;
+    padding: 0.25rem 0.625rem;
+    font-size: 1rem;
     font-family: var(--font-sans);
     color: var(--foreground);
     outline: none;
-    box-shadow: var(--shadow-xs);
     transition: border-color 150ms, box-shadow 150ms;
 
-    &amp;:focus {
+    &amp;:focus-visible {
       border-color: var(--ring);
-      box-shadow: 0 0 0 2px oklch(from var(--ring) l c h / 0.2);
+      box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring) 50%, transparent);
     }
 
     &amp;::placeholder { color: var(--muted-foreground); }
@@ -438,6 +439,7 @@
     &amp;:disabled {
       opacity: 0.5;
       cursor: not-allowed;
+      background: color-mix(in oklch, var(--input) 50%, transparent);
     }
 
     /* -- Readonly state -------------------------------------- */
@@ -446,7 +448,7 @@
       cursor: default;
       opacity: 0.7;
 
-      &amp;:focus {
+      &amp;:focus-visible {
         border-color: var(--input);
         box-shadow: var(--shadow-xs);
       }
@@ -456,9 +458,9 @@
     &amp;:is([aria-invalid=&quot;true&quot;], :user-invalid) {
       border-color: var(--destructive);
 
-      &amp;:focus {
+      &amp;:focus-visible {
         border-color: var(--destructive);
-        box-shadow: 0 0 0 2px oklch(from var(--destructive) l c h / 0.2);
+        box-shadow: 0 0 0 3px color-mix(in oklch, var(--destructive) 20%, transparent);
       }
     }
 
@@ -470,14 +472,14 @@
       &amp;::file-selector-button {
         height: 100%;
         border: none;
-        border-right: 1px solid var(--input);
+        border-inline-end: 1px solid var(--input);
         background: var(--muted);
         color: var(--foreground);
         font-size: 0.875rem;
         font-weight: 500;
         font-family: var(--font-sans);
         padding: 0 0.75rem;
-        margin-right: 0.75rem;
+        margin-inline-end: 0.75rem;
         cursor: pointer;
         transition: background 150ms;
 
@@ -486,8 +488,16 @@
     }
 
     /* -- Sizes ----------------------------------------------- */
-    &amp;[data-size=&quot;sm&quot;] { height: 2rem;    padding: 0 0.625rem; font-size: 0.8125rem; }
-    &amp;[data-size=&quot;lg&quot;] { height: 2.75rem; padding: 0 1rem;     font-size: 1rem; }
+    &amp;[data-size=&quot;sm&quot;] { height: 1.75rem;    padding: 0 0.625rem; font-size: 0.8125rem; }
+    &amp;[data-size=&quot;lg&quot;] { height: 2.25rem; padding: 0 1rem;     font-size: 1rem; }
+  }
+
+  @media (min-width: 48rem) {
+    .input:not([data-size]) { font-size: 0.875rem; }
+  }
+
+  .dark .input:not(:disabled):not(:read-only) {
+    background-color: color-mix(in oklch, var(--input) 30%, transparent);
   }
 
   /* -- Auto-growing textarea --------------------------------- */
@@ -694,9 +704,9 @@ Also covers `<textarea>` with auto-grow via `field-sizing: content`.
 
 | `data-size` | Height    | Padding       | Font size    |
 |-------------|-----------|---------------|--------------|
-| `sm`        | `2rem`    | `0 0.625rem`  | `0.8125rem`  |
-| *(default)* | `2.5rem`  | `0 0.75rem`   | `0.875rem`   |
-| `lg`        | `2.75rem` | `0 1rem`      | `1rem`       |
+| `sm`        | `1.75rem` | `0 0.625rem`  | `0.8125rem`  |
+| *(default)* | `2rem`    | `0.25rem 0.625rem` | `1rem` below 48rem, `0.875rem` above   |
+| `lg`        | `2.25rem` | `0 1rem`      | `1rem`       |
 
 ---
 

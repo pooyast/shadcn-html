@@ -26,8 +26,13 @@ document.querySelectorAll('[role="tablist"]:not([data-init])').forEach((tablist)
       trigger.addEventListener('keydown', (e) => {
         const current = triggers.indexOf(trigger);
         let next;
-        const forward = orientation === 'horizontal' ? 'ArrowRight' : 'ArrowDown';
-        const backward = orientation === 'horizontal' ? 'ArrowLeft' : 'ArrowUp';
+        const rtl = getComputedStyle(tablist).direction === 'rtl';
+        let forward = 'ArrowDown';
+        let backward = 'ArrowUp';
+        if (orientation === 'horizontal') {
+          forward = rtl ? 'ArrowLeft' : 'ArrowRight';
+          backward = rtl ? 'ArrowRight' : 'ArrowLeft';
+        }
         switch (e.key) {
           case forward:
             e.preventDefault();

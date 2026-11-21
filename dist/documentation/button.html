@@ -125,26 +125,26 @@
             <div style="display:grid;grid-template-columns:auto 1fr;gap:0.25rem 1rem;margin-bottom:1.25rem;">
               <code>default</code><span class="text-muted-foreground">Primary fill, white text</span>
               <code>secondary</code><span class="text-muted-foreground">Muted fill, dark text</span>
-              <code>outline</code><span class="text-muted-foreground">Border + shadow, transparent fill</span>
-              <code>ghost</code><span class="text-muted-foreground">Transparent, accent on hover</span>
-              <code>destructive</code><span class="text-muted-foreground">Red fill for danger actions</span>
+              <code>outline</code><span class="text-muted-foreground">Border with background fill</span>
+              <code>ghost</code><span class="text-muted-foreground">Transparent, muted fill on hover</span>
+              <code>destructive</code><span class="text-muted-foreground">Tinted fill for danger actions</span>
               <code>link</code><span class="text-muted-foreground">Inline text link, underline on hover</span>
             </div>
 
             <p style="margin:0 0 0.5rem;font-weight:600;font-size:0.8125rem;font-family:var(--font-mono);">Sizes (data-size)</p>
             <div style="display:grid;grid-template-columns:auto 1fr;gap:0.25rem 1rem;margin-bottom:1.25rem;">
-              <code>xs</code><span class="text-muted-foreground">Height: 1.75rem</span>
-              <code>sm</code><span class="text-muted-foreground">Height: 2rem</span>
-              <code>lg</code><span class="text-muted-foreground">Height: 2.75rem</span>
-              <code>icon</code><span class="text-muted-foreground">Height: 2.25rem</span>
-              <code>icon-xs</code><span class="text-muted-foreground">Height: 1.75rem</span>
-              <code>icon-sm</code><span class="text-muted-foreground">Height: 2rem</span>
-              <code>icon-lg</code><span class="text-muted-foreground">Height: 2.75rem</span>
+              <code>xs</code><span class="text-muted-foreground">Height: 1.5rem</span>
+              <code>sm</code><span class="text-muted-foreground">Height: 1.75rem</span>
+              <code>lg</code><span class="text-muted-foreground">Height: 2.25rem</span>
+              <code>icon</code><span class="text-muted-foreground">Height: 2rem</span>
+              <code>icon-xs</code><span class="text-muted-foreground">Height: 1.5rem</span>
+              <code>icon-sm</code><span class="text-muted-foreground">Height: 1.75rem</span>
+              <code>icon-lg</code><span class="text-muted-foreground">Height: 2.25rem</span>
             </div>
 
 
             <p style="margin:0 0 0.5rem;font-weight:600;font-size:0.8125rem;font-family:var(--font-mono);">Notes</p>
-            <p class="text-muted-foreground" style="margin:0 0 0.25rem;">• The <code>link</code> variant resets height and padding — it flows inline.</p>
+            <p class="text-muted-foreground" style="margin:0 0 0.25rem;">• The <code>link</code> variant uses the standard height and underlines on hover.</p>
             <p class="text-muted-foreground" style="margin:0 0 0.25rem;">• SVGs inside buttons auto-size to 1rem unless they have a <code>size-*</code> class.</p>
             <p class="text-muted-foreground" style="margin:0 0 0;">• The button works on <code>&lt;a&gt;</code> tags for styled navigation links.</p>
           </div>
@@ -372,21 +372,23 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
+    gap: 0.375rem;
     white-space: nowrap;
+    user-select: none;
     font-size: 0.875rem;
     font-weight: 500;
     font-family: var(--font-sans);
-    line-height: 1;
-    border-radius: var(--radius-md);
+    line-height: 1.25rem;
+    border-radius: var(--radius-lg);
     border: 1px solid transparent;
     cursor: pointer;
     text-decoration: none;
     transition: all 150ms ease;
     outline: none;
     flex-shrink: 0;
-    height: 2.25rem;
-    padding: 0 1rem;
+    height: 2rem;
+    box-sizing: border-box;
+    padding-inline: 0.625rem;
     background-color: var(--primary);
     color: var(--primary-foreground);
 
@@ -397,10 +399,21 @@
       &amp;:not([class*=&quot;size-&quot;]) { width: 1rem; height: 1rem; }
     }
 
-    &amp;:focus-visible {
-      outline: 2px solid var(--ring);
-      outline-offset: 2px;
+    &amp;:not([data-variant]):hover, &amp;[data-variant=&quot;default&quot;]:hover {
+      background-color: color-mix(in oklch, var(--primary) 80%, transparent);
     }
+
+    &amp;:focus-visible {
+      border-color: var(--ring);
+      box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring) 50%, transparent);
+    }
+
+    &amp;[aria-invalid=&quot;true&quot;] {
+      border-color: var(--destructive);
+      box-shadow: 0 0 0 3px color-mix(in oklch, var(--destructive) 20%, transparent);
+    }
+
+    &amp;:active:not([aria-haspopup]) { translate: 0 1px; }
 
     &amp;:disabled, &amp;[aria-disabled=&quot;true&quot;] {
       pointer-events: none;
@@ -412,25 +425,23 @@
       background-color: var(--primary);
       color: var(--primary-foreground);
 
-      &amp;:hover { opacity: 0.9; }
     }
 
     &amp;[data-variant=&quot;secondary&quot;] {
       background-color: var(--secondary);
       color: var(--secondary-foreground);
 
-      &amp;:hover { opacity: 0.8; }
+      &amp;:hover { background-color: color-mix(in oklch, var(--secondary), var(--foreground) 5%); }
     }
 
     &amp;[data-variant=&quot;outline&quot;] {
       background-color: var(--background);
       color: var(--foreground);
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow-xs);
+      border-color: var(--border);
 
-      &amp;:hover {
-        background-color: var(--accent);
-        color: var(--accent-foreground);
+      &amp;:is(:hover, [aria-expanded=&quot;true&quot;]) {
+        background-color: var(--muted);
+        color: var(--foreground);
       }
     }
 
@@ -439,37 +450,61 @@
       color: var(--foreground);
       border-color: transparent;
 
-      &amp;:hover {
-        background-color: var(--accent);
-        color: var(--accent-foreground);
+      &amp;:is(:hover, [aria-expanded=&quot;true&quot;]) {
+        background-color: var(--muted);
+        color: var(--foreground);
       }
     }
 
     &amp;[data-variant=&quot;destructive&quot;] {
-      background-color: var(--destructive);
-      color: var(--destructive-foreground);
+      background-color: color-mix(in oklch, var(--destructive) 10%, transparent);
+      color: var(--destructive);
 
-      &amp;:hover { opacity: 0.9; }
+      &amp;:hover { background-color: color-mix(in oklch, var(--destructive) 20%, transparent); }
+    }
+
+    &amp;[data-variant=&quot;outline&quot;]:focus-visible { border-color: var(--ring); }
+
+    &amp;[data-variant=&quot;destructive&quot;]:focus-visible {
+      border-color: color-mix(in oklch, var(--destructive) 40%, transparent);
+      box-shadow: 0 0 0 3px color-mix(in oklch, var(--destructive) 20%, transparent);
     }
 
     &amp;[data-variant=&quot;link&quot;] {
       background-color: transparent;
       color: var(--primary);
-      height: auto;
-      padding: 0;
       text-underline-offset: 4px;
 
       &amp;:hover { text-decoration: underline; }
     }
 
     /* -- Sizes ----------------------------------------------- */
-    &amp;[data-size=&quot;xs&quot;]      { height: 1.75rem; padding: 0 0.5rem;  font-size: 0.75rem; border-radius: var(--radius-sm); }
-    &amp;[data-size=&quot;sm&quot;]      { height: 2rem;    padding: 0 0.75rem; font-size: 0.8125rem; }
-    &amp;[data-size=&quot;lg&quot;]      { height: 2.75rem; padding: 0 2rem;    font-size: 1rem; }
-    &amp;[data-size=&quot;icon&quot;]    { height: 2.25rem; width: 2.25rem;  padding: 0; }
-    &amp;[data-size=&quot;icon-xs&quot;] { height: 1.75rem; width: 1.75rem;  padding: 0; border-radius: var(--radius-sm); }
-    &amp;[data-size=&quot;icon-sm&quot;] { height: 2rem;    width: 2rem;     padding: 0; }
-    &amp;[data-size=&quot;icon-lg&quot;] { height: 2.75rem; width: 2.75rem;  padding: 0; }
+    &amp;[data-size=&quot;xs&quot;] { height: 1.5rem; gap: 0.25rem; padding-inline: 0.5rem; font-size: 0.75rem; }
+    &amp;[data-size=&quot;sm&quot;] { height: 1.75rem; gap: 0.25rem; font-size: 0.8rem; }
+    &amp;[data-size=&quot;lg&quot;] { height: 2.25rem; }
+    &amp;[data-size^=&quot;icon&quot;] { width: 2rem; padding: 0; }
+    &amp;[data-size=&quot;icon-xs&quot;] { height: 1.5rem; width: 1.5rem; }
+    &amp;[data-size=&quot;icon-sm&quot;] { height: 1.75rem; width: 1.75rem; }
+    &amp;[data-size=&quot;icon-lg&quot;] { height: 2.25rem; width: 2.25rem; }
+    &amp;:is([data-size=&quot;xs&quot;], [data-size=&quot;icon-xs&quot;]) { border-radius: min(var(--radius-md), 10px); }
+    &amp;:is([data-size=&quot;sm&quot;], [data-size=&quot;icon-sm&quot;]) { border-radius: min(var(--radius-md), 12px); }
+    &amp;:is([data-size=&quot;xs&quot;], [data-size=&quot;icon-xs&quot;]) svg:not([class*=&quot;size-&quot;]) { width: 0.75rem; height: 0.75rem; }
+    &amp;[data-size=&quot;sm&quot;] svg:not([class*=&quot;size-&quot;]) { width: 0.875rem; height: 0.875rem; }
+  }
+
+  .dark .btn[data-variant=&quot;outline&quot;] {
+    border-color: var(--input);
+    background-color: color-mix(in oklch, var(--input) 30%, transparent);
+
+    &amp;:hover { background-color: color-mix(in oklch, var(--input) 50%, transparent); }
+    &amp;:focus-visible { border-color: var(--ring); }
+  }
+
+  .dark .btn[data-variant=&quot;destructive&quot;] {
+    background-color: color-mix(in oklch, var(--destructive) 20%, transparent);
+
+    &amp;:hover { background-color: color-mix(in oklch, var(--destructive) 30%, transparent); }
+    &amp;:focus-visible { box-shadow: 0 0 0 3px color-mix(in oklch, var(--destructive) 40%, transparent); }
   }
 
   /* -- Accessibility ------------------------------------------ */
@@ -498,6 +533,8 @@
   @media (forced-colors: active) {
     .btn {
       border: 1px solid ButtonText;
+
+      &amp;:focus-visible { outline: 2px solid Highlight; outline-offset: 2px; }
 
       &amp;:disabled, &amp;[aria-disabled=&quot;true&quot;] {
         border-color: GrayText;
@@ -586,11 +623,11 @@
 
 | `data-variant`  | Surface              | Text                     | Hover                          |
 |-----------------|----------------------|--------------------------|--------------------------------|
-| `default`       | `--primary`          | `--primary-foreground`   | `opacity: 0.88`               |
-| `secondary`     | `--secondary`        | `--secondary-foreground` | `opacity: 0.8`                |
-| `outline`       | `--background` + border + shadow-xs | `--foreground`  | `--accent` bg                  |
-| `ghost`         | transparent          | `--foreground`           | `--accent` bg                  |
-| `destructive`   | `--destructive`      | `--destructive-foreground` | `opacity: 0.88`             |
+| `default` | `--primary` | `--primary-foreground` | 80% primary fill |
+| `secondary` | `--secondary` | `--secondary-foreground` | Mix in 5% foreground |
+| `outline` | `--background` with border | `--foreground` | `--muted` fill |
+| `ghost` | transparent | `--foreground` | `--muted` fill |
+| `destructive` | 10% destructive fill | `--destructive` | 20% destructive fill |
 | `link`          | transparent          | `--primary`              | underline                      |
 
 ---
@@ -599,14 +636,14 @@
 
 | `data-size` | Height    | Padding       | Font size    | Border radius       |
 |-------------|-----------|---------------|--------------|---------------------|
-| `xs`        | `1.75rem` | `0 0.5rem`    | `0.75rem`    | `var(--radius-sm)`  |
-| `sm`        | `2rem`    | `0 0.75rem`   | `0.8125rem`  | `var(--radius-md)`  |
-| *(default)* | `2.25rem` | `0 1rem`      | `0.875rem`   | `var(--radius-md)`  |
-| `lg`        | `2.75rem` | `0 2rem`      | `1rem`       | `var(--radius-md)`  |
-| `icon`      | `2.25rem` | `0` (square)  | —            | `var(--radius-md)`  |
-| `icon-xs`   | `1.75rem` | `0` (square)  | —            | `var(--radius-sm)`  |
-| `icon-sm`   | `2rem`    | `0` (square)  | —            | `var(--radius-md)`  |
-| `icon-lg`   | `2.75rem` | `0` (square)  | —            | `var(--radius-md)`  |
+| `xs`        | `1.5rem`  | `0 0.5rem`   | `0.75rem`    | `min(var(--radius-md), 10px)` |
+| `sm`        | `1.75rem` | `0 0.625rem` | `0.8rem`     | `min(var(--radius-md), 12px)` |
+| *(default)* | `2rem`    | `0 0.625rem` | `0.875rem`   | `var(--radius-lg)` |
+| `lg`        | `2.25rem` | `0 0.625rem` | `0.875rem`   | `var(--radius-lg)` |
+| `icon`      | `2rem`    | `0` (square)  | — | `var(--radius-lg)` |
+| `icon-xs`   | `1.5rem`  | `0` (square)  | — | `min(var(--radius-md), 10px)` |
+| `icon-sm`   | `1.75rem` | `0` (square)  | — | `min(var(--radius-md), 12px)` |
+| `icon-lg`   | `2.25rem` | `0` (square)  | — | `var(--radius-lg)` |
 
 ---
 
@@ -621,7 +658,6 @@
 
 ## Notes
 
-- The `link` variant resets height and padding — it flows inline.
 - SVGs inside buttons auto-size to 1rem unless they have a `size-*` class.
 - The button works on `<a>` tags for styled navigation links.
 </script>
