@@ -7,3 +7,7 @@ node_modules
 # Browser test output
 /test-results/
 /playwright-report/
+
+# Cloudflare deployment build output
+/.pages-reference/
+/.pages-stage/

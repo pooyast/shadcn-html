@@ -15,4 +15,11 @@ export default defineConfig({
     },
   },
   esbuild: { jsx: 'automatic' },
+  build: {
+    outDir: path('../../.pages-reference'),
+    emptyOutDir: true,
+    rollupOptions: {
+      input: ['index', 'official', 'html'].map(name => path('./' + name + '.html')),
+    },
+  },
 });
