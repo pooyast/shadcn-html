@@ -133,9 +133,9 @@
         <p class="text-muted-foreground text-sm mb-4">Click the trigger to open a popover below (default side). Uses native Popover API — no JS for open/close.</p>
         <div class="preview">
           <button class="btn" data-variant="outline" popovertarget="demo-popover">Open Popover</button>
-          <div class="popover" id="demo-popover" popover>
+          <div class="popover" id="demo-popover" popover role="dialog" aria-labelledby="demo-popover-title">
             <div class="popover-header">
-              <p class="popover-title">Dimensions</p>
+              <p class="popover-title" id="demo-popover-title">Dimensions</p>
               <p class="popover-description">Set the dimensions for the layer.</p>
             </div>
             <div class="popover-content">
@@ -261,94 +261,58 @@
         <!-- -- CSS --------------------------------------- -->
         <section style="margin-top:3rem;" id="source-css">
           <h2 style="font-family:var(--font-display);font-size:1.5rem;font-weight:400;letter-spacing:-0.025em;margin:0 0 0.375rem;">CSS <a href="../components/popover/popover.css" target="_blank" style="font-size:0.75rem;font-weight:400;color:var(--muted-foreground);text-decoration:underline;text-underline-offset:3px;margin-left:0.5rem;">view file</a></h2>
-          <p class="text-muted-foreground text-sm mb-4">Uses <code>position-area</code> for anchor positioning, <code>@starting-style</code> for enter animations, and <code>position-try-fallbacks</code> for automatic viewport-overflow flipping. Supports <code>data-side</code> and <code>data-align</code> attributes.</p>
+          <p class="text-muted-foreground text-sm mb-4">Defines the panel size, spacing, and animation. CSS anchor positioning provides the default placement before the positioning module runs.</p>
           <div style="position:relative;margin-top:0.5rem;">
             <button class="copy-btn"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>Copy</button>
             <pre><code class="language-scss">@layer components {
   .popover {
     position: fixed;
-    inset: auto;
+    inset: var(--popover-y, auto) auto auto var(--popover-x, auto);
+    position-area: bottom;
+    position-try-fallbacks: flip-block;
     margin: 0;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-xl);
+    box-sizing: border-box;
+    width: 18rem;
+    max-width: calc(100dvw - 1rem);
+    max-height: calc(100dvh - 1rem);
+    overflow: auto;
+    overscroll-behavior: contain;
+    border: none;
+    border-radius: var(--radius-lg);
     background-color: var(--popover);
     color: var(--popover-foreground);
-    padding: 1rem;
-    box-shadow: var(--shadow-md);
-    width: 20rem;
+    padding: 0.625rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    box-shadow: var(--shadow-md), 0 0 0 1px color-mix(in oklch, var(--foreground) 10%, transparent);
     opacity: 0;
-    translate: 0 -4px;
-    transition: opacity 150ms ease, translate 150ms ease, display 150ms allow-discrete;
+    transition: opacity 100ms ease, display 100ms allow-discrete, overlay 100ms allow-discrete;
 
-    /* -- Default: bottom center -- */
-    position-area: bottom;
-    margin-top: 4px;
-    position-try-fallbacks: flip-block;
+    /* Use the measured coordinates when positioning JS is loaded. */
+    &amp;[data-positioned] { position-area: none; }
 
     &amp;:popover-open {
+      display: flex;
+      flex-direction: column;
+      gap: 0.625rem;
       opacity: 1;
-      translate: 0 0;
-    }
-
-    /* ----- Side variants ----- */
-    &amp;[data-side=&quot;top&quot;] {
-      position-area: top;
-      margin-top: 0;
-      margin-bottom: 4px;
-      translate: 0 4px;
-      &amp;:popover-open { translate: 0 0; }
-    }
-
-    &amp;[data-side=&quot;left&quot;] {
-      position-area: left;
-      margin-top: 0;
-      margin-right: 4px;
-      translate: 4px 0;
-      position-try-fallbacks: flip-inline;
-      &amp;:popover-open { translate: 0 0; }
-    }
-
-    &amp;[data-side=&quot;right&quot;] {
-      position-area: right;
-      margin-top: 0;
-      margin-left: 4px;
-      translate: -4px 0;
-      position-try-fallbacks: flip-inline;
-      &amp;:popover-open { translate: 0 0; }
-    }
-
-    /* ----- Align variants (combined with side) ----- */
-    &amp;[data-align=&quot;start&quot;] {
-      &amp;:not([data-side=&quot;left&quot;]):not([data-side=&quot;right&quot;]) { position-area: bottom left; }
-      &amp;[data-side=&quot;top&quot;] { position-area: top left; }
-      &amp;[data-side=&quot;left&quot;] { position-area: left top; }
-      &amp;[data-side=&quot;right&quot;] { position-area: right top; }
-    }
-
-    &amp;[data-align=&quot;end&quot;] {
-      &amp;:not([data-side=&quot;left&quot;]):not([data-side=&quot;right&quot;]) { position-area: bottom right; }
-      &amp;[data-side=&quot;top&quot;] { position-area: top right; }
-      &amp;[data-side=&quot;left&quot;] { position-area: left bottom; }
-      &amp;[data-side=&quot;right&quot;] { position-area: right bottom; }
     }
   }
 
   @starting-style {
-    .popover:popover-open { opacity: 0; translate: 0 -4px; }
-    .popover[data-side=&quot;top&quot;]:popover-open { opacity: 0; translate: 0 4px; }
-    .popover[data-side=&quot;left&quot;]:popover-open { opacity: 0; translate: 4px 0; }
-    .popover[data-side=&quot;right&quot;]:popover-open { opacity: 0; translate: -4px 0; }
+    .popover:popover-open { opacity: 0; }
   }
 
-  .popover-header { margin-bottom: 0.75rem; }
-  .popover-title { margin: 0; font-size: 0.875rem; font-weight: 500; color: var(--foreground); }
-  .popover-description { margin: 0.25rem 0 0; font-size: 0.8125rem; color: var(--muted-foreground); }
-  .popover-content { font-size: 0.875rem; }
+  .popover-header { display: flex; flex-direction: column; gap: 0.125rem; }
+  .popover-title { margin: 0; font-weight: 500; }
+  .popover-description { margin: 0; color: var(--muted-foreground); }
 
   @media (prefers-reduced-motion: reduce) {
-    .popover {
-      transition: none;
-    }
+    .popover { transition: none; }
+  }
+
+  @media (forced-colors: active) {
+    .popover { outline: 1px solid CanvasText; }
   }
 }</code></pre>
           </div>
@@ -357,28 +321,108 @@
         <!-- -- JavaScript -------------------------------- -->
         <section style="margin-top:3rem;" id="source-js">
           <h2 style="font-family:var(--font-display);font-size:1.5rem;font-weight:400;letter-spacing:-0.025em;margin:0 0 0.375rem;">JavaScript <a href="../components/popover/popover.js" target="_blank" style="font-size:0.75rem;font-weight:400;color:var(--muted-foreground);text-decoration:underline;text-underline-offset:3px;margin-left:0.5rem;">view file</a></h2>
-          <p class="text-muted-foreground text-sm mb-4">Assigns unique CSS anchor names per trigger–popover pair. Opening, closing, and light-dismiss are handled entirely by the native <code>popovertarget</code> attribute.</p>
+          <p class="text-muted-foreground text-sm mb-4">Positions the panel against its opener, flips sides when space is tight, and keeps the panel within the viewport. The native Popover API handles opening, closing, and light-dismiss.</p>
           <div style="position:relative;margin-top:0.5rem;">
             <button class="copy-btn"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>Copy</button>
-            <pre><code class="language-javascript">// -- Popover --------------------------------------------------
-// CSS anchor positioning for popover components.
+            <pre><code class="language-javascript">// Placement for native popovers. The browser owns activation, dismissal and focus.
+const openPopovers = new Map();
+const recentTriggers = new WeakMap();
+const edges = { top: 'bottom', bottom: 'top', left: 'right', right: 'left' };
+const gutter = 8;
+const gap = 4;
+let frame = 0;
 
-function init() {
-  document.querySelectorAll('[popovertarget]:not([data-init])').forEach((trigger) =&gt; {
-  trigger.dataset.init = '';
-  const id = trigger.getAttribute('popovertarget');
-  const popover = document.getElementById(id);
-  if (!popover || !popover.classList.contains('popover')) return;
+function position(popover, trigger) {
+  const viewport = window.visualViewport;
+  const left = (viewport?.offsetLeft ?? 0) + gutter;
+  const top = (viewport?.offsetTop ?? 0) + gutter;
+  const right = left + (viewport?.width ?? document.documentElement.clientWidth) - gutter * 2;
+  const bottom = top + (viewport?.height ?? document.documentElement.clientHeight) - gutter * 2;
+  popover.dataset.positioned = '';
+  const anchor = trigger.getBoundingClientRect();
+  const { width, height } = popover.getBoundingClientRect();
+  const available = {
+    top: anchor.top - top - gap,
+    bottom: bottom - anchor.bottom - gap,
+    left: anchor.left - left - gap,
+    right: right - anchor.right - gap,
+  };
 
-  // CSS anchor positioning - unique name per trigger-popover pair
-  const anchorId = `--popover-${id}`;
-  trigger.style.anchorName = anchorId;
-  popover.style.positionAnchor = anchorId;
-});
+  let side = Object.hasOwn(edges, popover.dataset.side) ? popover.dataset.side : 'bottom';
+  const vertical = side === 'top' || side === 'bottom';
+  const opposite = edges[side];
+  if (available[side] &lt; (vertical ? height : width) &amp;&amp; available[opposite] &gt; available[side]) {
+    side = opposite;
+  }
+
+  let align = popover.dataset.align;
+  if (vertical &amp;&amp; getComputedStyle(trigger).direction === 'rtl') {
+    if (align === 'start') align = 'end';
+    else if (align === 'end') align = 'start';
+  }
+
+  const crossStart = vertical ? anchor.left : anchor.top;
+  const crossEnd = vertical ? anchor.right : anchor.bottom;
+  const crossSize = vertical ? width : height;
+  let cross = (crossStart + crossEnd - crossSize) / 2;
+  if (align === 'start') cross = crossStart;
+  else if (align === 'end') cross = crossEnd - crossSize;
+
+  const x = vertical ? cross : side === 'left' ? anchor.left - gap - width : anchor.right + gap;
+  const y = vertical ? side === 'top' ? anchor.top - gap - height : anchor.bottom + gap : cross;
+  popover.style.setProperty('--popover-x', `${Math.max(left, Math.min(x, right - width))}px`);
+  popover.style.setProperty('--popover-y', `${Math.max(top, Math.min(y, bottom - height))}px`);
 }
 
-init();
-new MutationObserver(init).observe(document, { childList: true, subtree: true });</code></pre>
+function updatePositions() {
+  frame = 0;
+  for (const [popover, entry] of openPopovers) {
+    if (popover.isConnected &amp;&amp; popover.matches(':popover-open') &amp;&amp; entry.trigger.isConnected) {
+      position(popover, entry.trigger);
+    } else {
+      entry.observer.disconnect();
+      openPopovers.delete(popover);
+    }
+  }
+}
+
+function schedulePositions() {
+  if (openPopovers.size &amp;&amp; !frame) frame = requestAnimationFrame(updatePositions);
+}
+
+document.addEventListener('click', event =&gt; {
+  const trigger = event.target instanceof Element &amp;&amp; event.target.closest('[popovertarget]');
+  const popover = trigger?.popoverTargetElement;
+  if (popover?.matches('.popover') &amp;&amp; !popover.matches(':popover-open')) recentTriggers.set(popover, trigger);
+}, true);
+
+document.addEventListener('toggle', event =&gt; {
+  const popover = event.target;
+  if (!(popover instanceof HTMLElement) || !popover.matches('.popover[popover]')) return;
+
+  openPopovers.get(popover)?.observer.disconnect();
+  openPopovers.delete(popover);
+  if (event.newState === 'closed') {
+    delete popover.dataset.positioned;
+    popover.style.removeProperty('--popover-x');
+    popover.style.removeProperty('--popover-y');
+    recentTriggers.delete(popover);
+    return;
+  }
+
+  const trigger = event.source ?? recentTriggers.get(popover);
+  if (!(trigger instanceof HTMLElement)) return;
+  const observer = new ResizeObserver(schedulePositions);
+  observer.observe(trigger);
+  observer.observe(popover);
+  openPopovers.set(popover, { trigger, observer });
+  position(popover, trigger);
+}, true);
+
+window.addEventListener('scroll', schedulePositions, { capture: true, passive: true });
+window.addEventListener('resize', schedulePositions);
+window.visualViewport?.addEventListener('resize', schedulePositions);
+window.visualViewport?.addEventListener('scroll', schedulePositions);</code></pre>
           </div>
         </section>
     </main>
@@ -417,15 +461,15 @@ new MutationObserver(init).observe(document, { childList: true, subtree: true })
 
 ## Native basis
 
-`popover` attribute — native Popover API with CSS anchor positioning for placement.
+`popover` attribute — native Popover API for activation, dismissal and focus. CSS provides default anchoring and the module handles viewport collisions.
 
 ## Native Web APIs
 
 - [`popover` attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/popover) — native popover API with light-dismiss (click outside / Escape)
 - [`popovertarget`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/button#popovertarget) — declarative button→popover wiring with no JS
 - [CSS Anchor Positioning](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_anchor_positioning) — positions popover relative to trigger via `position-area`
-- [`position-area`](https://developer.mozilla.org/en-US/docs/Web/CSS/position-area) — grid-based anchor positioning for side/align placement
-- [`position-try-fallbacks`](https://developer.mozilla.org/en-US/docs/Web/CSS/position-try-fallbacks) — automatic flip when popover overflows viewport
+- [`position-area`](https://developer.mozilla.org/en-US/docs/Web/CSS/position-area) — default native placement before the module applies coordinates
+- [`position-try-fallbacks`](https://developer.mozilla.org/en-US/docs/Web/CSS/position-try-fallbacks) — fallback flip for native default placement
 - [`@starting-style`](https://developer.mozilla.org/en-US/docs/Web/CSS/@starting-style) — entry animation starting values
 - [`transition-behavior: allow-discrete`](https://developer.mozilla.org/en-US/docs/Web/CSS/transition-behavior) — enables transitions on `display` property
 
@@ -434,13 +478,13 @@ new MutationObserver(init).observe(document, { childList: true, subtree: true })
 ```html
 <button class="btn" data-variant="outline" popovertarget="my-popover">Open Popover</button>
 
-<div class="popover" id="my-popover" popover>
+<div class="popover" id="my-popover" popover role="dialog" aria-labelledby="my-popover-title">
   <div class="popover-header">
-    <p class="popover-title">Dimensions</p>
+    <p class="popover-title" id="my-popover-title">Dimensions</p>
     <p class="popover-description">Set the dimensions for the layer.</p>
   </div>
   <div class="popover-content">
-    <!-- any content -->
+    <input class="input" aria-label="Width" autofocus>
   </div>
 </div>
 ```
@@ -465,17 +509,17 @@ new MutationObserver(init).observe(document, { childList: true, subtree: true })
 | `popover` | `.popover` | `"auto"` | `"auto"` | Enables native Popover API |
 | `popovertarget` | trigger `<button>` | popover `id` | — | Declarative trigger wiring |
 | `data-side` | `.popover` | `top`, `right`, `bottom`, `left` | `bottom` | Which side of the trigger to position |
-| `data-align` | `.popover` | `start`, `center`, `end` | `center` | Alignment along the side axis |
+| `data-align` | `.popover` | `start`, `center`, `end` | `center` | Cross-axis alignment. Top and bottom follow the trigger’s writing direction. |
 
 ## ARIA
 
-No additional ARIA attributes are needed. The native `popover` attribute and `popovertarget` handle accessibility automatically:
+Use a labeled nonmodal `role="dialog"` for a popover with interactive content. The native `popover` attribute and `popovertarget` handle activation and dismissal:
 
 | Feature | Handled by |
 |---|---|
 | Toggle open/close | `popovertarget` (declarative, no JS) |
 | Light dismiss | Popover API (click outside or Escape closes) |
-| Focus management | Browser moves focus into popover on open |
+| Focus management | Use `autofocus` to move focus to the first intended control |
 
 ## Keyboard
 
@@ -487,10 +531,11 @@ No additional ARIA attributes are needed. The native `popover` attribute and `po
 ## Notes
 
 - The popover renders in the **top layer**, so it appears above all other content regardless of `z-index`.
-- CSS anchor positioning (`position-area`) handles placement — the JS only assigns unique anchor names per trigger–popover pair.
-- `position-try-fallbacks: flip-block` (or `flip-inline` for left/right sides) automatically repositions when the popover would overflow the viewport.
+- The placement module uses the actual opener. It flips to the opposite side if that side has more space and clamps the panel inside the viewport.
+- The module updates positions on scrolled ancestors and resizes. Declarative triggers inserted dynamically use the same behavior.
+- Without the module, supporting browsers use the default CSS anchor placement.
 - The `popover` attribute defaults to `"auto"` which provides light-dismiss behavior. Use `popover="manual"` if you need the popover to stay open until explicitly closed.
-- Do not place the `.popover` element inside scroll containers — it renders in the top layer and will not scroll with parent content.
+- For a programmatically opened anchored popover, use `showPopover({ source: trigger })` in browsers that support the source option.
 </script>
 </body>
 </html>

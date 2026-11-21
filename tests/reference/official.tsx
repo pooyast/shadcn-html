@@ -3,6 +3,7 @@ import { Button } from './upstream/button';
 import { Input } from './upstream/input';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from './upstream/dialog';
 import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxList } from './upstream/combobox';
+import { Popover, PopoverContent, PopoverDescription, PopoverHeader, PopoverTitle, PopoverTrigger } from './upstream/popover';
 import './official.css';
 
 const sizes = ['xs', 'sm', 'default', 'lg', 'icon-xs', 'icon-sm', 'icon', 'icon-lg'] as const;
@@ -38,6 +39,18 @@ createRoot(document.getElementById('root')!).render(
           </DialogFooter>
         </DialogContent>
       </Dialog>
+    </section>
+    <section aria-label="Popover example">
+      <Popover>
+        <PopoverTrigger render={<Button variant="outline" />}>Open popover</PopoverTrigger>
+        <PopoverContent>
+          <PopoverHeader>
+            <PopoverTitle>Dimensions</PopoverTitle>
+            <PopoverDescription>Set the dimensions for the layer.</PopoverDescription>
+          </PopoverHeader>
+          <Input aria-label="Width" defaultValue="100%" />
+        </PopoverContent>
+      </Popover>
     </section>
     <section aria-label="Combobox example">
       <Combobox items={items}>

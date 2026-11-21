@@ -26,6 +26,10 @@
     "textarea": {
       "url": "https://ui.shadcn.com/r/styles/base-nova/textarea.json",
       "sha256": "8f01f6bc4ee556263bae7644e8b527022fa77ff203f33a258bb47142ef7d9c81"
+    },
+    "popover": {
+      "url": "https://ui.shadcn.com/r/styles/base-nova/popover.json",
+      "sha256": "ba5fe84f353f6c0fd2133a2ab893f5e8861fc60dc4dea548a7ec875acaa37b2c"
     }
   }
 }
