@@ -196,20 +196,9 @@ for (const file of htmlFiles) {
   const filePath = path.join(docDir, file);
   let html = fs.readFileSync(filePath, 'utf8');
 
-  // Only process pages that have been auto-generated (not the original 24 hand-crafted)
-  // Detect by checking if api-pill labels have backtick remnants or other auto-gen markers
-  // For re-runs: match the details block we generated (doesn't have spec-inline-body anymore)
-  if (html.includes('spec-inline-body')) {
-    // Still has the auto-rendered version
-    var oldRe = /\s*<!-- Component Skill -->[\s\S]*?<div class="spec-inline-body"[^>]*><\/div>\s*<\/details>/;
-  } else {
-    // Already replaced once — skip the 24 originals by checking for hand-crafted content
-    // Original 24 don't have backtick issues in api-pill code
-    // We'll match any details block that has our generated content
-    // Skip if this is one of the original 24 (they have specific hand-crafted patterns)
-    if (!needsRegeneration(html, compName)) continue;
-    var oldRe = /\s*<!-- Component Skill -->[\s\S]*?<\/details>/;
-  }
+  // Convert only legacy placeholders. Preserve existing authored and generated details.
+  const oldRe = /\s*<!-- Component Skill -->\s*<details\b[^>]*>(?:(?!<\/details>)[\s\S])*?<div class="spec-inline-body"[^>]*><\/div>\s*<\/details>/;
+  if (!oldRe.test(html)) continue;
 
   const md = fs.readFileSync(mdFile, 'utf8');
   const sections = parseSections(md);
@@ -231,16 +220,10 @@ for (const file of htmlFiles) {
 ${specContent}          </div>
         </details>`;
 
-  // Replace the old auto-rendered details block
-  const oldRe = /\s*<!-- Component Skill -->[\s\S]*?<div class="spec-inline-body"[^>]*><\/div>\s*<\/details>/;
-  if (oldRe.test(html)) {
-    html = html.replace(oldRe, '\n' + newDetails);
-    fs.writeFileSync(filePath, html, 'utf8');
-    console.log(`  OK ${file}`);
-    count++;
-  } else {
-    console.log(`  WARN ${file} — could not match old details block`);
-  }
+  html = html.replace(oldRe, () => '\n' + newDetails);
+  fs.writeFileSync(filePath, html, 'utf8');
+  console.log(`  OK ${file}`);
+  count++;
 }
 
 console.log(`\nDone: ${count} files updated`);

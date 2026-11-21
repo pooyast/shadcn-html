@@ -1,29 +1,37 @@
-// -- Dialog ---------------------------------------------------
-// Wires [data-dialog-trigger] buttons to <dialog> elements.
+// Wires declarative triggers and close controls to native dialogs.
+const dialogSelector = 'dialog:not(.alert-dialog):not(.sheet)';
+const openers = new WeakMap();
 
-function init() {
-document.querySelectorAll('[data-dialog-trigger]:not([data-init])').forEach((trigger) => {
-  trigger.dataset.init = '';
-  const dialog = document.getElementById(trigger.dataset.dialogTrigger);
-  if (!dialog) return;
-  trigger.addEventListener('click', () => {
-    dialog._trigger = trigger;
-    dialog.showModal();
-  });
-});
-document.querySelectorAll('dialog:not(.alert-dialog):not(.sheet):not([data-init])').forEach((dialog) => {
-  dialog.dataset.init = '';
-  dialog.addEventListener('click', (e) => {
-    if (e.target === dialog) dialog.close();
-  });
-  dialog.querySelectorAll('[data-dialog-close]').forEach((btn) => {
-    btn.addEventListener('click', () => { dialog.close(); });
-  });
-  dialog.addEventListener('close', () => {
-    if (dialog._trigger) dialog._trigger.focus();
-  });
-});
-}
+document.addEventListener('click', (event) => {
+  if (event.defaultPrevented || !(event.target instanceof Element)) return;
+  const trigger = event.target.closest('[data-dialog-trigger]');
+  if (trigger && !trigger.matches(':disabled, [aria-disabled="true"]')) {
+    const dialog = document.getElementById(trigger.dataset.dialogTrigger);
+    if (dialog instanceof HTMLDialogElement && !dialog.open) {
+      dialog.showModal();
+      openers.set(dialog, trigger);
+    }
+    return;
+  }
 
-init();
-new MutationObserver(init).observe(document, { childList: true, subtree: true });
+  const dialog = event.target.closest(dialogSelector);
+  if (!dialog?.open) return;
+  if (event.target.closest('[data-dialog-close]')?.closest('dialog') === dialog) {
+    dialog.close();
+    return;
+  }
+
+  if (event.target === dialog) {
+    const bounds = dialog.getBoundingClientRect();
+    if (event.clientX < bounds.left || event.clientX > bounds.right ||
+        event.clientY < bounds.top || event.clientY > bounds.bottom) dialog.close();
+  }
+});
+
+document.addEventListener('close', (event) => {
+  const dialog = event.target;
+  if (!(dialog instanceof HTMLDialogElement) || !dialog.matches(dialogSelector)) return;
+  const opener = openers.get(dialog);
+  openers.delete(dialog);
+  if (opener?.isConnected) opener.focus();
+}, true);

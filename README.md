@@ -97,6 +97,11 @@ Every component starts from a native HTML element or browser API. If the browser
 - **Dark mode automatic** — the token cascade handles it, no overrides needed
 - **Variant via data attributes** — `data-variant="primary"`, not `btn-primary`
 
+## Component comparison and tests
+
+See the [Base UI / Nova comparison](tests/reference/README.md) for the reference
+preview, regression tests, and component coverage matrix.
+
 ## Author
 
 Built by [Cody Lindley](https://codylindley.com)

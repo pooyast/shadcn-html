@@ -1,0 +1,31 @@
+{
+  "cli": "4.23.0",
+  "base": "base",
+  "style": "nova",
+  "items": {
+    "button": {
+      "url": "https://ui.shadcn.com/r/styles/base-nova/button.json",
+      "sha256": "9ba7e870178813f0552b818a913a2792fb500c779e36395740b4973e3025d427"
+    },
+    "input": {
+      "url": "https://ui.shadcn.com/r/styles/base-nova/input.json",
+      "sha256": "bbad1bba130ac9750a61844eeb8f043e8a710846e07689fa85398b80a46c2741"
+    },
+    "dialog": {
+      "url": "https://ui.shadcn.com/r/styles/base-nova/dialog.json",
+      "sha256": "40fc321d25eb9590d07db54b00d9bc1a74274a549aa06d5915a34ba302ed8b94"
+    },
+    "combobox": {
+      "url": "https://ui.shadcn.com/r/styles/base-nova/combobox.json",
+      "sha256": "d4b9231b00428269f6fa42bf3e26714f15c69245f35b62d1bbae6d1a4853d314"
+    },
+    "input-group": {
+      "url": "https://ui.shadcn.com/r/styles/base-nova/input-group.json",
+      "sha256": "acf9c5497a6c844dee87fbd4afefb6cd8be9ce50d050d14d58a340d955e517a1"
+    },
+    "textarea": {
+      "url": "https://ui.shadcn.com/r/styles/base-nova/textarea.json",
+      "sha256": "8f01f6bc4ee556263bae7644e8b527022fa77ff203f33a258bb47142ef7d9c81"
+    }
+  }
+}

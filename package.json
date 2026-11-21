@@ -11,9 +11,21 @@
     "deploy:major": "./scripts/deploy.sh major",
     "deploy:beta": "./scripts/deploy.sh patch beta",
     "deploy:rc": "./scripts/deploy.sh patch rc",
-    "deploy:release": "./scripts/deploy.sh patch release"
+    "deploy:release": "./scripts/deploy.sh patch release",
+    "test": "playwright test",
+    "dev:reference": "vite --config tests/reference/vite.config.mjs --host 127.0.0.1 --port 4173 --strictPort"
   },
   "devDependencies": {
+    "@base-ui/react": "1.9.0",
+    "@playwright/test": "1.65.1",
+    "@tailwindcss/vite": "4.3.5",
+    "class-variance-authority": "0.7.1",
+    "cn": "0.5.2",
+    "lucide-react": "1.77.0",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "shadcn": "4.23.0",
+    "tailwindcss": "4.3.5",
     "vite": "^8.0.8"
   }
 }

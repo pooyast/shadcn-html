@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>shadcn-html components</title>
+<link rel="stylesheet" href="../../dist/theme/default-semantic-tokens.css">
+<link rel="stylesheet" href="../../dist/components/button/button.css">
+<link rel="stylesheet" href="../../dist/components/input/input.css">
+<link rel="stylesheet" href="../../dist/components/dialog/dialog.css">
+<link rel="stylesheet" href="../../dist/components/combobox/combobox.css">
+<link rel="stylesheet" href="./fixture.css">
+<script type="module" src="../../dist/components/dialog/dialog.js"></script>
+<script type="module" src="../../dist/components/combobox/combobox.js"></script>
+<script type="module" src="../../dist/components/tabs/tabs.js"></script>
+<script>
+  if (new URLSearchParams(location.search).get('theme') === 'dark') document.documentElement.classList.add('dark');
+</script>
+<main class="fixture">
+  <section aria-label="Button examples">
+    <button class="btn">Continue</button>
+    <button class="btn" data-variant="outline">Cancel</button>
+    <button class="btn" data-variant="destructive">Delete</button>
+  </section>
+  <form aria-label="Contact">
+    <label for="email">Email</label>
+    <input class="input" id="email" name="email" type="email" required placeholder="you@example.com">
+  </form>
+  <section aria-label="Dialog example">
+    <button class="btn" data-variant="outline" data-dialog-trigger="profile">Open dialog</button>
+    <dialog class="dialog" id="profile" aria-labelledby="title" aria-describedby="description">
+      <div class="dialog-content">
+        <header class="dialog-header">
+          <h2 class="dialog-title" id="title">Edit profile</h2>
+          <p class="dialog-description" id="description">Change your display name.</p>
+        </header>
+        <input class="input" aria-label="Display name" value="Sam">
+        <footer class="dialog-footer">
+          <button class="btn" data-variant="outline" data-dialog-close>Close</button>
+          <button class="btn" data-dialog-close>Save</button>
+        </footer>
+      </div>
+    </dialog>
+  </section>
+  <section aria-label="Combobox example">
+    <div class="combobox">
+      <button class="btn combobox-trigger" data-variant="outline" aria-expanded="false" aria-controls="framework-menu">
+        <span class="combobox-value" data-placeholder>Select a framework</span>
+        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+      <div class="combobox-content" popover id="framework-menu">
+        <div class="combobox-search">
+          <input class="combobox-search-input" role="combobox" aria-label="Framework" aria-expanded="true" aria-autocomplete="list" aria-controls="framework-list">
+        </div>
+        <div class="combobox-listbox" id="framework-list" role="listbox" aria-label="Frameworks">
+          <div class="combobox-item" role="option" id="react" aria-selected="false">React</div>
+          <div class="combobox-item" role="option" id="svelte" aria-selected="false">SvelteKit</div>
+          <div class="combobox-item" role="option" id="vue" aria-selected="false">Vue</div>
+        </div>
+        <p class="combobox-empty" hidden>No results found.</p>
+      </div>
+    </div>
+  </section>
+</main>
+</html>

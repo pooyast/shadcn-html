@@ -249,17 +249,17 @@
     margin: auto;
     position: fixed;
     inset: 0;
-    max-width: 28rem;
+    max-width: calc(100% - 2rem);
     width: calc(100vw - 2rem);
     max-height: calc(100vh - 2rem);
-    box-shadow: 0 25px 80px oklch(0 0 0 / 0.25), 0 0 0 1px var(--border);
+    box-shadow: 0 0 0 1px color-mix(in oklch, var(--foreground) 10%, transparent);
     opacity: 0;
-    transform: translateY(-0.5rem) scale(0.98);
-    transition: opacity 200ms ease, transform 200ms ease, display 200ms allow-discrete;
+    transform: scale(0.95);
+    transition: opacity 100ms ease, transform 100ms ease, display 100ms allow-discrete, overlay 100ms allow-discrete;
 
     &amp;[open] {
       opacity: 1;
-      transform: translateY(0) scale(1);
+      transform: scale(1);
     }
 
     /* -- Sizes ------------------------------------------------ */
@@ -272,19 +272,19 @@
     &amp;::backdrop {
       background: oklch(0 0 0 / 0);
       backdrop-filter: blur(0px);
-      transition: all 200ms ease, display 200ms allow-discrete;
+      transition: all 100ms ease, display 100ms allow-discrete, overlay 100ms allow-discrete;
     }
 
     &amp;[open]::backdrop {
-      background: oklch(0 0 0 / 0.45);
-      backdrop-filter: blur(3px);
+      background: oklch(0 0 0 / 0.10);
+      backdrop-filter: blur(4px);
     }
   }
 
   @starting-style {
     dialog.dialog[open] {
       opacity: 0;
-      transform: translateY(-0.5rem) scale(0.98);
+      transform: scale(0.95);
     }
 
     dialog.dialog[open]::backdrop {
@@ -294,12 +294,29 @@
   }
 
   /* -- Content sections ------------------------------------- */
-  .dialog-content { padding: 1.5rem; }
+  .dialog-content { padding: 1rem; }
   .dialog-header  { margin-bottom: 1rem; }
-  .dialog-title   { font-size: 1.0625rem; font-weight: 600; margin: 0 0 0.375rem; letter-spacing: -0.01em; }
-  .dialog-description { font-size: 0.875rem; color: var(--muted-foreground); margin: 0; line-height: 1.6; }
+  .dialog-title   { font-size: 1rem; font-weight: 600; margin: 0 0 0.375rem; letter-spacing: -0.01em; }
+  .dialog-description { font-size: 0.875rem; color: var(--muted-foreground); margin: 0; line-height: 1.25rem; }
   .dialog-body    { margin-top: 1rem; }
-  .dialog-footer  { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1.5rem; }
+  .dialog-footer {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 0.5rem;
+    margin: 1rem -1rem -1rem;
+    padding: 1rem;
+    border-block-start: 1px solid var(--border);
+    background: color-mix(in oklch, var(--muted) 50%, transparent);
+  }
+
+  @media (min-width: 40rem) {
+    dialog.dialog { max-width: 24rem; }
+    .dialog-footer { flex-direction: row; justify-content: flex-end; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    dialog.dialog, dialog.dialog::backdrop { transition: none; }
+  }
 }</code></pre>
           </div>
         </section>
@@ -313,35 +330,43 @@
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
               Copy
             </button>
-            <pre><code class="language-javascript">// -- Dialog ---------------------------------------------------
-// Wires [data-dialog-trigger] buttons to &lt;dialog&gt; elements.
+            <pre><code class="language-javascript">// Wires declarative triggers and close controls to native dialogs.
+const dialogSelector = 'dialog:not(.alert-dialog):not(.sheet)';
+const openers = new WeakMap();
 
-function init() {
-document.querySelectorAll('[data-dialog-trigger]:not([data-init])').forEach((trigger) =&gt; {
-  trigger.dataset.init = '';
-  const dialog = document.getElementById(trigger.dataset.dialogTrigger);
-  if (!dialog) return;
-  trigger.addEventListener('click', () =&gt; {
-    dialog._trigger = trigger;
-    dialog.showModal();
-  });
-});
-document.querySelectorAll('dialog:not(.alert-dialog):not(.sheet):not([data-init])').forEach((dialog) =&gt; {
-  dialog.dataset.init = '';
-  dialog.addEventListener('click', (e) =&gt; {
-    if (e.target === dialog) dialog.close();
-  });
-  dialog.querySelectorAll('[data-dialog-close]').forEach((btn) =&gt; {
-    btn.addEventListener('click', () =&gt; { dialog.close(); });
-  });
-  dialog.addEventListener('close', () =&gt; {
-    if (dialog._trigger) dialog._trigger.focus();
-  });
-});
-}
+document.addEventListener('click', (event) =&gt; {
+  if (event.defaultPrevented || !(event.target instanceof Element)) return;
+  const trigger = event.target.closest('[data-dialog-trigger]');
+  if (trigger &amp;&amp; !trigger.matches(':disabled, [aria-disabled=&quot;true&quot;]')) {
+    const dialog = document.getElementById(trigger.dataset.dialogTrigger);
+    if (dialog instanceof HTMLDialogElement &amp;&amp; !dialog.open) {
+      dialog.showModal();
+      openers.set(dialog, trigger);
+    }
+    return;
+  }
 
-init();
-new MutationObserver(init).observe(document, { childList: true, subtree: true });</code></pre>
+  const dialog = event.target.closest(dialogSelector);
+  if (!dialog?.open) return;
+  if (event.target.closest('[data-dialog-close]')?.closest('dialog') === dialog) {
+    dialog.close();
+    return;
+  }
+
+  if (event.target === dialog) {
+    const bounds = dialog.getBoundingClientRect();
+    if (event.clientX &lt; bounds.left || event.clientX &gt; bounds.right ||
+        event.clientY &lt; bounds.top || event.clientY &gt; bounds.bottom) dialog.close();
+  }
+});
+
+document.addEventListener('close', (event) =&gt; {
+  const dialog = event.target;
+  if (!(dialog instanceof HTMLDialogElement) || !dialog.matches(dialogSelector)) return;
+  const opener = openers.get(dialog);
+  openers.delete(dialog);
+  if (opener?.isConnected) opener.focus();
+}, true);</code></pre>
           </div>
         </section>
 
@@ -482,7 +507,7 @@ Requires minimal JavaScript — only for trigger wiring and backdrop-click-to-cl
 | `data-size` | Max width  | Use case                         |
 |-------------|------------|----------------------------------|
 | `sm`        | `24rem`    | Confirmations, simple alerts     |
-| *(default)* | `28rem`    | Standard forms, content          |
+| *(default)* | `24rem`    | Standard forms on viewports at least 40rem wide          |
 | `lg`        | `32rem`    | Complex forms, rich content      |
 | `xl`        | `40rem`    | Data-heavy, multi-column layouts |
 | `full`      | `calc(100vw - 2rem)` | Full-screen modal        |

@@ -1,0 +1,15 @@
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font: 0.875rem/1.25rem var(--font-sans);
+}
+
+.fixture {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.fixture form, .fixture [aria-label="Combobox example"] { width: min(100%, 16rem); }
+.fixture label { display: block; margin-block-end: 0.25rem; }

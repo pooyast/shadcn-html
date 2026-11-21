@@ -128,8 +128,8 @@ the search input when the popover opens.
 |---------------|--------------------------------------------------|
 | `ArrowDown`   | Highlight next item                              |
 | `ArrowUp`     | Highlight previous item                          |
-| `Home`        | Highlight first visible item                     |
-| `End`         | Highlight last visible item                      |
+| `Home`        | Move caret to start of the search text                     |
+| `End`         | Move caret to end of the search text                      |
 | `Enter`       | Select highlighted item, close popup             |
 | `Escape`      | Close popup, return focus to trigger             |
 | `Tab`         | Close popup, move focus to next element          |
