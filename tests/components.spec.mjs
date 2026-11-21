@@ -123,3 +123,55 @@ for (const [theme, viewport] of [
     expect(errors).toEqual([]);
   });
 }
+
+test('Nova and HTML use the same heights for all Button sizes', async ({ page }) => {
+  await page.goto(reference + 'index.html');
+  for (const [size, height] of Object.entries({
+    xs: 24, sm: 28, default: 32, lg: 36,
+    'icon-xs': 24, 'icon-sm': 28, icon: 32, 'icon-lg': 36,
+  })) {
+    for (const title of ['Official Nova', 'HTML port']) {
+      const button = page.frameLocator(`iframe[title="${title}"]`)
+        .getByRole('button', { name: 'Sample ' + size, exact: true });
+      await expect(button).toHaveCSS('height', height + 'px');
+      if (size.startsWith('icon')) await expect(button).toHaveCSS('width', height + 'px');
+    }
+  }
+});
+
+test('disabled controls and invalid styling are exposed', async ({ page }) => {
+  await page.goto(reference + 'index.html');
+  for (const title of ['Official Nova', 'HTML port']) {
+    const frame = page.frameLocator(`iframe[title="${title}"]`);
+    const disabled = frame.getByRole('button', { name: 'Unavailable' });
+    await expect(disabled).toBeDisabled();
+    await expect(disabled).toHaveCSS('opacity', '0.5');
+    const invalid = frame.getByRole('button', { name: 'Invalid' });
+    await expect(invalid).toHaveAttribute('aria-invalid', 'true');
+    await expect(invalid).not.toHaveCSS('box-shadow', 'none');
+  }
+});
+
+test('closing a nested dialog restores focus inside its parent', async ({ page }) => {
+  await page.goto(reference + 'html.html');
+  const parentTrigger = page.getByRole('button', { name: 'Open dialog' });
+  await parentTrigger.click();
+  const parent = page.getByRole('dialog', { name: 'Edit profile' });
+  await parent.locator('input').evaluate(input => {
+    input.insertAdjacentHTML('afterend', `
+      <button data-dialog-trigger="nested">Open details</button>
+      <dialog class="dialog" id="nested" aria-label="Details">
+        <button data-dialog-close autofocus>Done</button>
+      </dialog>
+    `);
+  });
+  const nestedTrigger = parent.getByRole('button', { name: 'Open details' });
+  await nestedTrigger.click();
+  const nested = page.getByRole('dialog', { name: 'Details' });
+  await expect(nested.getByRole('button', { name: 'Done' })).toBeFocused();
+  await page.keyboard.press('Escape');
+  await expect(nested).toBeHidden();
+  await expect(nestedTrigger).toBeFocused();
+  await page.keyboard.press('Escape');
+  await expect(parentTrigger).toBeFocused();
+});

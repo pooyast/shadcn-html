@@ -13,3 +13,11 @@ body {
 
 .fixture form, .fixture [aria-label="Combobox example"] { width: min(100%, 16rem); }
 .fixture label { display: block; margin-block-end: 0.25rem; }
+
+.fixture-sizes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem;
+  margin-block-start: 0.5rem;
+}
