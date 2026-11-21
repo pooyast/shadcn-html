@@ -120,6 +120,34 @@ the search input when the popover opens.
 
 ---
 
+## Form integration and multiple selection
+
+Add a hidden native `<select data-combobox-field name="framework">` inside the
+wrapper. Its option values must match each visible option's `data-value` or
+its trimmed text when `data-value` is omitted. The native field supplies the
+initial value and the values submitted by the form. Use an empty native option
+for an unselected single-value field.
+
+```html
+<select data-combobox-field name="framework" multiple hidden>
+  <option value="react" selected>React</option>
+  <option value="vue">Vue</option>
+</select>
+```
+
+For the options in this example, set `data-value="react"` and `data-value="vue"`
+on their visible listbox options. Each visible option needs a unique ID.
+In multiple mode, Enter toggles the highlighted option and keeps the menu open.
+Read submitted values with `new FormData(form).getAll('framework')`. To set a
+value from code, update the native field's selection and dispatch a bubbling
+`change` event. The form's reset restores the options selected in the markup.
+Keep disabled options and the trigger state in sync with the native select.
+Use `data-placeholder-text` on the value span to supply an empty label when the
+initial markup contains a selected value.
+
+Without a native field, add `aria-multiselectable="true"` to the listbox to enable
+multiple selection for display-only use.
+
 ## Keyboard interactions
 
 ### Focus on search input (inside popover):

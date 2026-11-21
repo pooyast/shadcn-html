@@ -9,10 +9,18 @@ function init() {
     const searchInput = wrapper.querySelector('.combobox-search-input');
     const listbox = wrapper.querySelector('[role="listbox"]');
     const empty = wrapper.querySelector('.combobox-empty');
+    const field = wrapper.querySelector('select[data-combobox-field]');
+    const multiple = field?.multiple ?? listbox?.getAttribute('aria-multiselectable') === 'true';
     if (!trigger || !popover || !searchInput || !listbox) return;
 
     wrapper.dataset.init = '';
     const allItems = Array.from(listbox.querySelectorAll('[role="option"]'));
+    const placeholder = valueEl?.dataset.placeholderText ??
+      (valueEl?.hasAttribute('data-placeholder') ? valueEl.textContent.trim() : 'Select an option');
+    const optionValue = item => item.dataset.value ?? item.textContent.trim();
+    const isSelected = item => item.getAttribute('aria-selected') === 'true';
+
+    if (multiple) listbox.setAttribute('aria-multiselectable', 'true');
     let highlighted = -1;
 
     // CSS anchor positioning - unique name per trigger-popover pair
@@ -22,8 +30,10 @@ function init() {
 
     const getVisibleItems = () => allItems.filter((item) => !item.hidden && item.getAttribute('aria-disabled') !== 'true');
     const open = () => {
+      if (field?.matches(':disabled')) return;
       popover.showPopover();
       trigger.setAttribute('aria-expanded', 'true');
+      searchInput.setAttribute('aria-expanded', 'true');
       searchInput.value = '';
       filter('');
       searchInput.focus();
@@ -31,6 +41,7 @@ function init() {
     const close = () => {
       popover.hidePopover();
       trigger.setAttribute('aria-expanded', 'false');
+      searchInput.setAttribute('aria-expanded', 'false');
       clearHighlight();
       trigger.focus();
     };
@@ -60,13 +71,52 @@ function init() {
       items[index].scrollIntoView({ block: 'nearest' });
       if (items[index].id) searchInput.setAttribute('aria-activedescendant', items[index].id);
     };
-    const selectItem = (item) => {
-      if (item.getAttribute('aria-disabled') === 'true') return;
-      allItems.forEach((i) => { i.setAttribute('aria-selected', 'false'); });
-      item.setAttribute('aria-selected', 'true');
-      if (valueEl) { valueEl.textContent = item.textContent.trim(); valueEl.removeAttribute('data-placeholder'); }
-      close();
+    const renderValue = () => {
+      if (!valueEl) return;
+      const labels = allItems.filter(isSelected).map(item => item.textContent.trim());
+      valueEl.textContent = labels.length ? labels.join(', ') : placeholder;
+      valueEl.toggleAttribute('data-placeholder', !labels.length);
     };
+
+    const syncFromField = () => {
+      const values = new Set(Array.from(field.selectedOptions, option => option.value).filter(Boolean));
+      allItems.forEach(item => item.setAttribute('aria-selected', String(values.has(optionValue(item)))));
+      renderValue();
+    };
+
+    const selectItem = (item) => {
+      if (item.getAttribute('aria-disabled') === 'true' || field?.matches(':disabled')) return;
+      if (multiple) {
+        item.setAttribute('aria-selected', String(!isSelected(item)));
+      } else {
+        allItems.forEach(option => option.setAttribute('aria-selected', String(option === item)));
+      }
+
+      if (field) {
+        const values = new Set(allItems.filter(isSelected).map(optionValue));
+        if (multiple) {
+          Array.from(field.options).forEach(option => { option.selected = values.has(option.value); });
+        } else {
+          field.value = optionValue(item);
+        }
+        field.dispatchEvent(new Event('input', { bubbles: true }));
+        field.dispatchEvent(new Event('change', { bubbles: true }));
+      } else {
+        renderValue();
+      }
+
+      if (!multiple) close();
+    };
+
+    if (field) {
+      syncFromField();
+      field.addEventListener('change', syncFromField);
+      field.form?.addEventListener('reset', event => {
+        setTimeout(() => {
+          if (!event.defaultPrevented) syncFromField();
+        }, 0);
+      });
+    }
     trigger.addEventListener('click', () => { if (isOpen()) { close(); } else { open(); } });
     searchInput.addEventListener('input', () => { filter(searchInput.value); doHighlight(0); });
     searchInput.addEventListener('keydown', (e) => {
@@ -82,7 +132,12 @@ function init() {
     });
     listbox.addEventListener('click', (e) => { const item = e.target.closest('[role="option"]'); if (item && !item.hidden && item.getAttribute('aria-disabled') !== 'true') selectItem(item); });
     listbox.addEventListener('mousemove', (e) => { const item = e.target.closest('[role="option"]'); if (item && !item.hidden) { const items = getVisibleItems(); doHighlight(items.indexOf(item)); } });
-    popover.addEventListener('toggle', (e) => { if (e.newState === 'closed') { trigger.setAttribute('aria-expanded', 'false'); clearHighlight(); } });
+    popover.addEventListener('toggle', (event) => {
+      if (event.newState !== 'closed') return;
+      trigger.setAttribute('aria-expanded', 'false');
+      searchInput.setAttribute('aria-expanded', 'false');
+      clearHighlight();
+    });
   });
 }
 

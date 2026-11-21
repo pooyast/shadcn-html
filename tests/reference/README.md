@@ -12,17 +12,17 @@ downloaded registry response. The fixture resolves upstream imports locally and
 selects the Lucide icons. React, Tailwind and the CLI are development dependencies.
 The published HTML distribution remains static.
 
-Install Chromium once with `npx playwright install chromium`, then run
-`npm test`. GitHub Actions runs the same checks.
+Install Chromium, Firefox and WebKit with `npx playwright install`, then run
+`npm test`. GitHub Actions runs the same checks. The [deployment guide](DEPLOYMENT.md) covers preview, production and rollback.
 
 ## Parity matrix
 
 | Area | HTML coverage | Current verification or remaining work |
 | --- | --- | --- |
-| Button | Six variants and eight sizes | Default height and radius compared with Nova. Add assertions for every size and interactive state. |
+| Button | Six variants and eight sizes | All eight heights, icon widths, default radius, disabled state and invalid styling tested. |
 | Input | Native field, two extra sizes, invalid and readonly styling | Default height and radius compared with Nova. FormData, native validation and reset tested. File-control visuals are browser-dependent. |
-| Dialog | Native modal with declarative triggers and close controls | Escape, backdrop dismissal and focus restoration tested. Check nested dialogs and mobile/screen reader behavior. |
-| Combobox | Searchable single-select with button trigger | Keyboard selection, filtered visibility and empty-result ARIA tested. Add controlled value, form serialization and multiselect in a later pass. |
+| Dialog | Native modal with declarative triggers and close controls | Escape, backdrop dismissal, nested focus restoration, and width at desktop and mobile viewport sizes tested. Screen reader verification remains open. |
+| Combobox | Searchable single or multiple selection with an optional native form field | Keyboard selection, filtered visibility, empty-result ARIA, controlled updates, RTL multiselect, FormData and reset tested. |
 | Tabs | Horizontal and vertical tabs | Horizontal RTL keyboard regression tested. |
 | Existing overlay and form foundations | Popover, Dropdown, Context Menu, Navigation Menu, Sheet, Calendar, Radio, Checkbox, Switch, Slider | Compare keyboard, form and positioning contracts with the corresponding official components. |
 | Native equivalents | Select, Date Picker | Keep native Select mapped to official Native Select. Add a separate custom Select and Calendar + Popover date picker. |

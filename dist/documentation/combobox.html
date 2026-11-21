@@ -347,6 +347,39 @@
 &lt;/button&gt;</code></pre>
           </div>
         <!-- -- CSS --------------------------------------- -->
+        <section style="margin-top:3rem;">
+          <h2 class="text-lg font-semibold mb-2">Multiple selection in a form</h2>
+          <p class="text-sm text-muted-foreground mb-4">Select or deselect frameworks, then reset to restore the default value.</p>
+          <form class="preview" aria-label="Framework preferences">
+            <div class="combobox" style="width:min(100%, 18rem);">
+              <button type="button" class="btn combobox-trigger" data-variant="outline"
+                      aria-controls="framework-multi-options" aria-expanded="false">
+                <span class="combobox-value" data-placeholder-text="Select frameworks">React</span>
+              </button>
+              <div id="framework-multi-options" class="combobox-content" popover>
+                <div class="combobox-search">
+                  <input class="combobox-search-input" type="text" role="combobox"
+                         aria-label="Search frameworks" aria-expanded="false" aria-autocomplete="list"
+                         aria-controls="framework-multi-list">
+                </div>
+                <div id="framework-multi-list" class="combobox-listbox" role="listbox"
+                     aria-label="Frameworks" aria-multiselectable="true">
+                  <div id="framework-multi-react" class="combobox-item" role="option" data-value="react" aria-selected="true">React</div>
+                  <div id="framework-multi-vue" class="combobox-item" role="option" data-value="vue" aria-selected="false">Vue</div>
+                  <div id="framework-multi-svelte" class="combobox-item" role="option" data-value="svelte" aria-selected="false">SvelteKit</div>
+                </div>
+                <div class="combobox-empty" hidden>No results found.</div>
+              </div>
+              <select data-combobox-field name="framework" multiple hidden>
+                <option value="react" selected>React</option>
+                <option value="vue">Vue</option>
+                <option value="svelte">SvelteKit</option>
+              </select>
+            </div>
+            <button type="reset" class="btn" data-variant="secondary">Reset choices</button>
+          </form>
+        </section>
+
         <section style="margin-top:3rem;" id="source-css">
           <h2 style="font-family:var(--font-display);font-size:1.5rem;font-weight:400;letter-spacing:-0.025em;margin:0 0 0.375rem;">CSS <a href="../components/combobox/combobox.css" target="_blank" style="font-size:0.75rem;font-weight:400;color:var(--muted-foreground);text-decoration:underline;text-underline-offset:3px;margin-left:0.5rem;">view file</a></h2>
           <div style="position:relative;margin-top:0.5rem;">
@@ -560,10 +593,18 @@ function init() {
     const searchInput = wrapper.querySelector('.combobox-search-input');
     const listbox = wrapper.querySelector('[role=&quot;listbox&quot;]');
     const empty = wrapper.querySelector('.combobox-empty');
+    const field = wrapper.querySelector('select[data-combobox-field]');
+    const multiple = field?.multiple ?? listbox?.getAttribute('aria-multiselectable') === 'true';
     if (!trigger || !popover || !searchInput || !listbox) return;
 
     wrapper.dataset.init = '';
     const allItems = Array.from(listbox.querySelectorAll('[role=&quot;option&quot;]'));
+    const placeholder = valueEl?.dataset.placeholderText ??
+      (valueEl?.hasAttribute('data-placeholder') ? valueEl.textContent.trim() : 'Select an option');
+    const optionValue = item =&gt; item.dataset.value ?? item.textContent.trim();
+    const isSelected = item =&gt; item.getAttribute('aria-selected') === 'true';
+
+    if (multiple) listbox.setAttribute('aria-multiselectable', 'true');
     let highlighted = -1;
 
     // CSS anchor positioning - unique name per trigger-popover pair
@@ -573,8 +614,10 @@ function init() {
 
     const getVisibleItems = () =&gt; allItems.filter((item) =&gt; !item.hidden &amp;&amp; item.getAttribute('aria-disabled') !== 'true');
     const open = () =&gt; {
+      if (field?.matches(':disabled')) return;
       popover.showPopover();
       trigger.setAttribute('aria-expanded', 'true');
+      searchInput.setAttribute('aria-expanded', 'true');
       searchInput.value = '';
       filter('');
       searchInput.focus();
@@ -582,6 +625,7 @@ function init() {
     const close = () =&gt; {
       popover.hidePopover();
       trigger.setAttribute('aria-expanded', 'false');
+      searchInput.setAttribute('aria-expanded', 'false');
       clearHighlight();
       trigger.focus();
     };
@@ -611,13 +655,52 @@ function init() {
       items[index].scrollIntoView({ block: 'nearest' });
       if (items[index].id) searchInput.setAttribute('aria-activedescendant', items[index].id);
     };
-    const selectItem = (item) =&gt; {
-      if (item.getAttribute('aria-disabled') === 'true') return;
-      allItems.forEach((i) =&gt; { i.setAttribute('aria-selected', 'false'); });
-      item.setAttribute('aria-selected', 'true');
-      if (valueEl) { valueEl.textContent = item.textContent.trim(); valueEl.removeAttribute('data-placeholder'); }
-      close();
+    const renderValue = () =&gt; {
+      if (!valueEl) return;
+      const labels = allItems.filter(isSelected).map(item =&gt; item.textContent.trim());
+      valueEl.textContent = labels.length ? labels.join(', ') : placeholder;
+      valueEl.toggleAttribute('data-placeholder', !labels.length);
     };
+
+    const syncFromField = () =&gt; {
+      const values = new Set(Array.from(field.selectedOptions, option =&gt; option.value).filter(Boolean));
+      allItems.forEach(item =&gt; item.setAttribute('aria-selected', String(values.has(optionValue(item)))));
+      renderValue();
+    };
+
+    const selectItem = (item) =&gt; {
+      if (item.getAttribute('aria-disabled') === 'true' || field?.matches(':disabled')) return;
+      if (multiple) {
+        item.setAttribute('aria-selected', String(!isSelected(item)));
+      } else {
+        allItems.forEach(option =&gt; option.setAttribute('aria-selected', String(option === item)));
+      }
+
+      if (field) {
+        const values = new Set(allItems.filter(isSelected).map(optionValue));
+        if (multiple) {
+          Array.from(field.options).forEach(option =&gt; { option.selected = values.has(option.value); });
+        } else {
+          field.value = optionValue(item);
+        }
+        field.dispatchEvent(new Event('input', { bubbles: true }));
+        field.dispatchEvent(new Event('change', { bubbles: true }));
+      } else {
+        renderValue();
+      }
+
+      if (!multiple) close();
+    };
+
+    if (field) {
+      syncFromField();
+      field.addEventListener('change', syncFromField);
+      field.form?.addEventListener('reset', event =&gt; {
+        setTimeout(() =&gt; {
+          if (!event.defaultPrevented) syncFromField();
+        }, 0);
+      });
+    }
     trigger.addEventListener('click', () =&gt; { if (isOpen()) { close(); } else { open(); } });
     searchInput.addEventListener('input', () =&gt; { filter(searchInput.value); doHighlight(0); });
     searchInput.addEventListener('keydown', (e) =&gt; {
@@ -633,7 +716,12 @@ function init() {
     });
     listbox.addEventListener('click', (e) =&gt; { const item = e.target.closest('[role=&quot;option&quot;]'); if (item &amp;&amp; !item.hidden &amp;&amp; item.getAttribute('aria-disabled') !== 'true') selectItem(item); });
     listbox.addEventListener('mousemove', (e) =&gt; { const item = e.target.closest('[role=&quot;option&quot;]'); if (item &amp;&amp; !item.hidden) { const items = getVisibleItems(); doHighlight(items.indexOf(item)); } });
-    popover.addEventListener('toggle', (e) =&gt; { if (e.newState === 'closed') { trigger.setAttribute('aria-expanded', 'false'); clearHighlight(); } });
+    popover.addEventListener('toggle', (event) =&gt; {
+      if (event.newState !== 'closed') return;
+      trigger.setAttribute('aria-expanded', 'false');
+      searchInput.setAttribute('aria-expanded', 'false');
+      clearHighlight();
+    });
   });
 }
 
@@ -795,6 +883,34 @@ the search input when the popover opens.
 | `aria-disabled`          | disabled options | `true` if option is disabled            |
 
 ---
+
+## Form integration and multiple selection
+
+Add a hidden native `<select data-combobox-field name="framework">` inside the
+wrapper. Its option values must match each visible option's `data-value` or
+its trimmed text when `data-value` is omitted. The native field supplies the
+initial value and the values submitted by the form. Use an empty native option
+for an unselected single-value field.
+
+```html
+<select data-combobox-field name="framework" multiple hidden>
+  <option value="react" selected>React</option>
+  <option value="vue">Vue</option>
+</select>
+```
+
+For the options in this example, set `data-value="react"` and `data-value="vue"`
+on their visible listbox options. Each visible option needs a unique ID.
+In multiple mode, Enter toggles the highlighted option and keeps the menu open.
+Read submitted values with `new FormData(form).getAll('framework')`. To set a
+value from code, update the native field's selection and dispatch a bubbling
+`change` event. The form's reset restores the options selected in the markup.
+Keep disabled options and the trigger state in sync with the native select.
+Use `data-placeholder-text` on the value span to supply an empty label when the
+initial markup contains a selected value.
+
+Without a native field, add `aria-multiselectable="true"` to the listbox to enable
+multiple selection for display-only use.
 
 ## Keyboard interactions
 
