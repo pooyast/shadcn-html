@@ -2,15 +2,15 @@
 
 ## Native basis
 
-`popover` attribute — native Popover API with CSS anchor positioning for placement.
+`popover` attribute — native Popover API for activation, dismissal and focus. CSS provides default anchoring and the module handles viewport collisions.
 
 ## Native Web APIs
 
 - [`popover` attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/popover) — native popover API with light-dismiss (click outside / Escape)
 - [`popovertarget`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/button#popovertarget) — declarative button→popover wiring with no JS
 - [CSS Anchor Positioning](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_anchor_positioning) — positions popover relative to trigger via `position-area`
-- [`position-area`](https://developer.mozilla.org/en-US/docs/Web/CSS/position-area) — grid-based anchor positioning for side/align placement
-- [`position-try-fallbacks`](https://developer.mozilla.org/en-US/docs/Web/CSS/position-try-fallbacks) — automatic flip when popover overflows viewport
+- [`position-area`](https://developer.mozilla.org/en-US/docs/Web/CSS/position-area) — default native placement before the module applies coordinates
+- [`position-try-fallbacks`](https://developer.mozilla.org/en-US/docs/Web/CSS/position-try-fallbacks) — fallback flip for native default placement
 - [`@starting-style`](https://developer.mozilla.org/en-US/docs/Web/CSS/@starting-style) — entry animation starting values
 - [`transition-behavior: allow-discrete`](https://developer.mozilla.org/en-US/docs/Web/CSS/transition-behavior) — enables transitions on `display` property
 
@@ -19,13 +19,13 @@
 ```html
 <button class="btn" data-variant="outline" popovertarget="my-popover">Open Popover</button>
 
-<div class="popover" id="my-popover" popover>
+<div class="popover" id="my-popover" popover role="dialog" aria-labelledby="my-popover-title">
   <div class="popover-header">
-    <p class="popover-title">Dimensions</p>
+    <p class="popover-title" id="my-popover-title">Dimensions</p>
     <p class="popover-description">Set the dimensions for the layer.</p>
   </div>
   <div class="popover-content">
-    <!-- any content -->
+    <input class="input" aria-label="Width" autofocus>
   </div>
 </div>
 ```
@@ -50,17 +50,17 @@
 | `popover` | `.popover` | `"auto"` | `"auto"` | Enables native Popover API |
 | `popovertarget` | trigger `<button>` | popover `id` | — | Declarative trigger wiring |
 | `data-side` | `.popover` | `top`, `right`, `bottom`, `left` | `bottom` | Which side of the trigger to position |
-| `data-align` | `.popover` | `start`, `center`, `end` | `center` | Alignment along the side axis |
+| `data-align` | `.popover` | `start`, `center`, `end` | `center` | Cross-axis alignment. Top and bottom follow the trigger’s writing direction. |
 
 ## ARIA
 
-No additional ARIA attributes are needed. The native `popover` attribute and `popovertarget` handle accessibility automatically:
+Use a labeled nonmodal `role="dialog"` for a popover with interactive content. The native `popover` attribute and `popovertarget` handle activation and dismissal:
 
 | Feature | Handled by |
 |---|---|
 | Toggle open/close | `popovertarget` (declarative, no JS) |
 | Light dismiss | Popover API (click outside or Escape closes) |
-| Focus management | Browser moves focus into popover on open |
+| Focus management | Use `autofocus` to move focus to the first intended control |
 
 ## Keyboard
 
@@ -72,7 +72,8 @@ No additional ARIA attributes are needed. The native `popover` attribute and `po
 ## Notes
 
 - The popover renders in the **top layer**, so it appears above all other content regardless of `z-index`.
-- CSS anchor positioning (`position-area`) handles placement — the JS only assigns unique anchor names per trigger–popover pair.
-- `position-try-fallbacks: flip-block` (or `flip-inline` for left/right sides) automatically repositions when the popover would overflow the viewport.
+- The placement module uses the actual opener. It flips to the opposite side if that side has more space and clamps the panel inside the viewport.
+- The module updates positions on scrolled ancestors and resizes. Declarative triggers inserted dynamically use the same behavior.
+- Without the module, supporting browsers use the default CSS anchor placement.
 - The `popover` attribute defaults to `"auto"` which provides light-dismiss behavior. Use `popover="manual"` if you need the popover to stay open until explicitly closed.
-- Do not place the `.popover` element inside scroll containers — it renders in the top layer and will not scroll with parent content.
+- For a programmatically opened anchored popover, use `showPopover({ source: trigger })` in browsers that support the source option.
