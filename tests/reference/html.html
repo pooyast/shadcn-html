@@ -20,6 +20,18 @@
     <button class="btn">Continue</button>
     <button class="btn" data-variant="outline">Cancel</button>
     <button class="btn" data-variant="destructive">Delete</button>
+    <div class="fixture-sizes">
+      <button class="btn" data-size="xs" aria-label="Sample xs">Sample</button>
+      <button class="btn" data-size="sm" aria-label="Sample sm">Sample</button>
+      <button class="btn" aria-label="Sample default">Sample</button>
+      <button class="btn" data-size="lg" aria-label="Sample lg">Sample</button>
+      <button class="btn" data-size="icon-xs" aria-label="Sample icon-xs">+</button>
+      <button class="btn" data-size="icon-sm" aria-label="Sample icon-sm">+</button>
+      <button class="btn" data-size="icon" aria-label="Sample icon">+</button>
+      <button class="btn" data-size="icon-lg" aria-label="Sample icon-lg">+</button>
+      <button class="btn" disabled>Unavailable</button>
+      <button class="btn" aria-invalid="true">Invalid</button>
+    </div>
   </section>
   <form aria-label="Contact">
     <label for="email">Email</label>
@@ -43,7 +55,7 @@
   </section>
   <section aria-label="Combobox example">
     <div class="combobox">
-      <button class="btn combobox-trigger" data-variant="outline" aria-expanded="false" aria-controls="framework-menu">
+      <button type="button" class="btn combobox-trigger" data-variant="outline" aria-expanded="false" aria-controls="framework-menu">
         <span class="combobox-value" data-placeholder>Select a framework</span>
         <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m6 9 6 6 6-6"/></svg>
       </button>

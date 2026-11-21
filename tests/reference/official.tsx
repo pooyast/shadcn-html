@@ -5,6 +5,7 @@ import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, Di
 import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxList } from './upstream/combobox';
 import './official.css';
 
+const sizes = ['xs', 'sm', 'default', 'lg', 'icon-xs', 'icon-sm', 'icon', 'icon-lg'] as const;
 const items = ['React', 'SvelteKit', 'Vue'];
 if (new URLSearchParams(location.search).get('theme') === 'dark') document.documentElement.classList.add('dark');
 
@@ -12,6 +13,11 @@ createRoot(document.getElementById('root')!).render(
   <main className="fixture">
     <section aria-label="Button examples">
       <Button>Continue</Button> <Button variant="outline">Cancel</Button> <Button variant="destructive">Delete</Button>
+      <div className="fixture-sizes">
+        {sizes.map(size => <Button key={size} size={size} aria-label={`Sample ${size}`}>{size.startsWith('icon') ? '+' : 'Sample'}</Button>)}
+        <Button disabled>Unavailable</Button>
+        <Button aria-invalid="true">Invalid</Button>
+      </div>
     </section>
     <form aria-label="Contact">
       <label htmlFor="email">Email</label>
