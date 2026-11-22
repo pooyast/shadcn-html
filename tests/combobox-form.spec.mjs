@@ -27,6 +27,7 @@ for (const multiple of [false, true]) {
     const search = fixture.getByRole('combobox', { name: 'Framework' });
     await expect(trigger).toContainText('React');
     await trigger.click();
+    await page.mouse.move(0, 0);
     await search.fill('vue');
     await search.press('Enter');
     await expect(trigger).toContainText(multiple ? 'React, Vue' : 'Vue');
@@ -35,8 +36,10 @@ for (const multiple of [false, true]) {
     expect(await getValues()).toEqual(multiple ? ['React', 'Vue'] : ['Vue']);
 
     if (multiple) {
+      await search.press('ArrowDown');
+      await expect(search).toHaveAttribute('aria-activedescendant', 'vue');
       await search.press('Enter');
-      await expect(trigger).toContainText('React');
+      await expect(trigger).toHaveText('React');
       expect(await getValues()).toEqual(['React']);
       await search.press('Escape');
       await expect(trigger).toBeFocused();
