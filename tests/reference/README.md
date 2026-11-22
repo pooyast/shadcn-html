@@ -26,7 +26,8 @@ Install Chromium, Firefox and WebKit with `npx playwright install`, then run
 | Tabs | Horizontal and vertical tabs | Horizontal RTL keyboard regression tested. |
 | Popover | Native nonmodal panel with logical alignment and viewport collision handling | Nova width and radius, keyboard and light-dismiss, focus restoration, edge flipping, and an alternate RTL opener tested in all three browser engines. |
 | Dropdown Menu | Native menu with checkbox/radio items and submenus | Nova item height and destructive color, disabled options, dismissal, RTL, edge flipping and pointer/keyboard selection tested. |
-| Existing overlay and form foundations | Context Menu, Navigation Menu, Sheet, Calendar, Radio, Checkbox, Switch, Slider | Compare keyboard, form and positioning contracts with the corresponding official components. |
+| Context Menu | Native right-click and keyboard menu with shared submenu behavior | Nova item height and minimum width, Shift+F10, Context Menu key, disabled options, focus restoration and RTL viewport edges tested. |
+| Existing overlay and form foundations | Navigation Menu, Sheet, Calendar, Radio, Checkbox, Switch, Slider | Compare keyboard, form and positioning contracts with the corresponding official components. |
 | Native equivalents | Select, Date Picker | Keep native Select mapped to official Native Select. Add a separate custom Select and Calendar + Popover date picker. |
 | Missing presentation components | Aspect Ratio, Empty, Field, Input Group, Item, Kbd | Implement after aligning the shared styles. Field can reuse the existing Form structure. |
 | Missing interactive components | Direction, Drawer, Hover Card, Input OTP, Menubar, Resizable, custom Select | Implement following base overlay and form verification. |

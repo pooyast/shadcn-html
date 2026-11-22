@@ -5,6 +5,7 @@ import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, Di
 import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxList } from './upstream/combobox';
 import { Popover, PopoverContent, PopoverDescription, PopoverHeader, PopoverTitle, PopoverTrigger } from './upstream/popover';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from './upstream/dropdown-menu';
+import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSeparator, ContextMenuTrigger } from './upstream/context-menu';
 import './official.css';
 
 const sizes = ['xs', 'sm', 'default', 'lg', 'icon-xs', 'icon-sm', 'icon', 'icon-lg'] as const;
@@ -63,6 +64,17 @@ createRoot(document.getElementById('root')!).render(
           <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+    </section>
+    <section aria-label="Context Menu example">
+      <ContextMenu>
+        <ContextMenuTrigger className="fixture-context">Right click here</ContextMenuTrigger>
+        <ContextMenuContent aria-label="Editing actions">
+          <ContextMenuItem>Cut</ContextMenuItem>
+          <ContextMenuItem disabled>Paste</ContextMenuItem>
+          <ContextMenuSeparator />
+          <ContextMenuItem variant="destructive">Delete</ContextMenuItem>
+        </ContextMenuContent>
+      </ContextMenu>
     </section>
     <section aria-label="Combobox example">
       <Combobox items={items}>

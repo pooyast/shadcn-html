@@ -21,3 +21,13 @@ body {
   gap: 0.25rem;
   margin-block-start: 0.5rem;
 }
+
+.fixture-context {
+  display: grid;
+  place-items: center;
+  width: min(100%, 16rem);
+  min-height: 3.5rem;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-lg);
+  color: var(--muted-foreground);
+}

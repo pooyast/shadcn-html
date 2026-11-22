@@ -10,12 +10,14 @@
 <link rel="stylesheet" href="../../dist/components/combobox/combobox.css">
 <link rel="stylesheet" href="../../dist/components/popover/popover.css">
 <link rel="stylesheet" href="../../dist/components/dropdown/dropdown.css">
+<link rel="stylesheet" href="../../dist/components/context-menu/context-menu.css">
 <link rel="stylesheet" href="./fixture.css">
 <script type="module" src="../../dist/components/dialog/dialog.js"></script>
 <script type="module" src="../../dist/components/combobox/combobox.js"></script>
 <script type="module" src="../../dist/components/tabs/tabs.js"></script>
 <script type="module" src="../../dist/components/popover/popover.js"></script>
 <script type="module" src="../../dist/components/dropdown/dropdown.js"></script>
+<script type="module" src="../../dist/components/context-menu/context-menu.js"></script>
 <script>
   if (new URLSearchParams(location.search).get('theme') === 'dark') document.documentElement.classList.add('dark');
 </script>
@@ -75,6 +77,16 @@
       <button type="button" class="dropdown-item" role="menuitem" tabindex="-1" disabled>Duplicate</button>
       <div class="dropdown-separator" role="separator"></div>
       <button type="button" class="dropdown-item" role="menuitem" tabindex="-1" data-variant="destructive">Delete</button>
+    </div>
+  </section>
+  <section aria-label="Context Menu example">
+    <div class="fixture-context" tabindex="0" data-context-menu="edit-context" aria-haspopup="menu"
+         aria-controls="edit-context" aria-expanded="false">Right click here</div>
+    <div class="context-menu" id="edit-context" role="menu" popover aria-label="Editing actions">
+      <button class="context-menu-item" role="menuitem" tabindex="-1">Cut</button>
+      <button class="context-menu-item" role="menuitem" tabindex="-1" aria-disabled="true">Paste</button>
+      <div class="context-menu-separator" role="separator"></div>
+      <button class="context-menu-item" role="menuitem" tabindex="-1" data-variant="destructive">Delete</button>
     </div>
   </section>
   <section aria-label="Combobox example">

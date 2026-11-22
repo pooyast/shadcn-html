@@ -34,6 +34,10 @@
     "dropdown-menu": {
       "url": "https://ui.shadcn.com/r/styles/base-nova/dropdown-menu.json",
       "sha256": "335c59dba30145f434a9cc9ccb0438a3c5e2afe857fc11b029de1ecb415224d7"
+    },
+    "context-menu": {
+      "url": "https://ui.shadcn.com/r/styles/base-nova/context-menu.json",
+      "sha256": "57bfdd236a7f4cb83625edf4c33265ce009738947666d00311034a88f6868756"
     }
   }
 }
