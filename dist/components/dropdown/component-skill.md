@@ -9,7 +9,6 @@ Requires JavaScript for keyboard navigation and ARIA management.
 
 ## Native Web APIs
 - [Popover API](https://developer.mozilla.org/en-US/docs/Web/API/Popover_API) — top-layer rendering and light-dismiss (click outside to close)
-- [CSS Anchor Positioning](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_anchor_positioning) — positions dropdown relative to trigger without JavaScript
 - [`@starting-style`](https://developer.mozilla.org/en-US/docs/Web/CSS/@starting-style) — entry animation for popover
 - [WAI-ARIA Menu pattern](https://www.w3.org/WAI/ARIA/apg/patterns/menubar/) — keyboard navigation and role contract for menu items
 - [`prefers-reduced-motion`](https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion) — suppresses open/close animation
@@ -142,9 +141,33 @@ For checkbox/radio items in the menu, use `aria-checked`:
 ## Notes
 
 - Always use `popover` attribute for the menu — it renders in the top layer and avoids overflow clipping
-- CSS anchor positioning (`position-anchor`, `anchor()`) handles placement — no JS positioning needed
+- The JavaScript module positions the native popover against its opener and keeps it inside the viewport.
 - `position-try: flip-block` automatically flips the menu above the trigger if there's no room below
 - The `popover` API handles light-dismiss (click outside) automatically
 - For submenus, nest another `[popover]` element triggered by a `menuitem` with `aria-haspopup="menu"`
 - Escape closes the menu and returns focus to the trigger
 - Menu items use `tabindex="-1"` — only arrow keys move focus (roving focus pattern)
+
+
+## Submenus
+
+Put the submenu inside its parent menu and associate it with a menu item using
+`data-dropdown-submenu` and `aria-controls`. Start with `aria-expanded="false"`.
+Use the same menu and item roles for the submenu.
+
+```html
+<button type="button" class="dropdown-item" role="menuitem" tabindex="-1"
+        data-dropdown-submenu="share-menu" aria-haspopup="menu"
+        aria-expanded="false" aria-controls="share-menu">Share</button>
+<div id="share-menu" class="dropdown-content" data-dropdown-panel="submenu"
+     role="menu" aria-label="Share" popover>
+  <button type="button" class="dropdown-item" role="menuitem" tabindex="-1">Copy link</button>
+</div>
+```
+
+ArrowDown and ArrowUp open the root menu at the first or last enabled option.
+Use the inline-end arrow, a click, or mouse hover to open a submenu. The
+inline-start arrow or Escape closes the submenu and returns focus to its item.
+Selection with a pointer or keyboard uses the item's click event. An outside
+click keeps focus on the outside target. The module flips and clamps panels
+inside the viewport and respects the trigger's text direction.

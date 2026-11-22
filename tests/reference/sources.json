@@ -30,6 +30,10 @@
     "popover": {
       "url": "https://ui.shadcn.com/r/styles/base-nova/popover.json",
       "sha256": "ba5fe84f353f6c0fd2133a2ab893f5e8861fc60dc4dea548a7ec875acaa37b2c"
+    },
+    "dropdown-menu": {
+      "url": "https://ui.shadcn.com/r/styles/base-nova/dropdown-menu.json",
+      "sha256": "335c59dba30145f434a9cc9ccb0438a3c5e2afe857fc11b029de1ecb415224d7"
     }
   }
 }

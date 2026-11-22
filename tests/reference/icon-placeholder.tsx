@@ -1,6 +1,6 @@
-import { CheckIcon, ChevronDownIcon, XIcon } from 'lucide-react';
+import { CheckIcon, ChevronDownIcon, ChevronRightIcon, XIcon } from 'lucide-react';
 
-const icons = { CheckIcon, ChevronDownIcon, XIcon };
+const icons = { CheckIcon, ChevronDownIcon, ChevronRightIcon, XIcon };
 
 export function IconPlaceholder({ lucide, className }: {
   lucide: keyof typeof icons;

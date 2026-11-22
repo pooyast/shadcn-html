@@ -37,7 +37,7 @@ test('Popover flips above a bottom corner trigger and stays inside a narrow view
   await page.goto(fixture + 'html.html');
   const trigger = page.getByRole('button', { name: 'Open popover' });
   await trigger.evaluate(button => {
-    button.style.cssText = 'position:fixed;right:3px;bottom:3px;';
+    button.style.cssText = 'position:fixed;right:3px;bottom:3px;z-index:1;';
   });
   await trigger.click();
   const popup = page.getByRole('dialog', { name: 'Dimensions' });
