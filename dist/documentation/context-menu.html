@@ -127,13 +127,14 @@
       </div>
         <p class="text-sm font-medium mb-2 mt-6">Default</p>
         <div class="preview">
-          <div class="context-menu-trigger" data-context-menu="demo-ctx">Right click here</div>
-          <div class="context-menu" id="demo-ctx" popover>
-            <button class="context-menu-item" role="menuitem">Cut</button>
-            <button class="context-menu-item" role="menuitem">Copy</button>
-            <button class="context-menu-item" role="menuitem">Paste</button>
-            <div class="context-menu-separator"></div>
-            <button class="context-menu-item" role="menuitem">Select All</button>
+          <div class="context-menu-trigger" data-context-menu="demo-ctx" tabindex="0"
+               aria-haspopup="menu" aria-expanded="false" aria-controls="demo-ctx">Right click or press Shift+F10</div>
+          <div class="context-menu" id="demo-ctx" role="menu" aria-label="Editing actions" popover>
+            <button class="context-menu-item" role="menuitem" tabindex="-1">Cut</button>
+            <button class="context-menu-item" role="menuitem" tabindex="-1">Copy</button>
+            <button class="context-menu-item" role="menuitem" tabindex="-1">Paste</button>
+            <div class="context-menu-separator" role="separator"></div>
+            <button class="context-menu-item" role="menuitem" tabindex="-1">Select All</button>
           </div>
         </div>
         <div style="position:relative;margin-top:0.5rem;">
@@ -141,12 +142,16 @@
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
             Copy
           </button>
-          <pre><code class="language-markup">&lt;div class="context-menu-trigger" data-context-menu="my-ctx"&gt;
-  Right click here
+          <pre><code class="language-markup">&lt;div class="context-menu-trigger" data-context-menu="edit-menu" tabindex="0"
+     aria-haspopup="menu" aria-expanded="false" aria-controls="edit-menu"&gt;
+  Right click or press Shift+F10
 &lt;/div&gt;
-&lt;div class="context-menu" id="my-ctx" popover&gt;
-  &lt;button class="context-menu-item" role="menuitem"&gt;Cut&lt;/button&gt;
-  &lt;button class="context-menu-item" role="menuitem"&gt;Copy&lt;/button&gt;
+&lt;div class="context-menu" id="edit-menu" role="menu" aria-label="Editing actions" popover&gt;
+  &lt;button type="button" class="context-menu-item" role="menuitem" tabindex="-1"&gt;Cut&lt;/button&gt;
+  &lt;button type="button" class="context-menu-item" role="menuitem" tabindex="-1" disabled&gt;Paste&lt;/button&gt;
+  &lt;div class="context-menu-separator" role="separator"&gt;&lt;/div&gt;
+  &lt;button type="button" class="context-menu-item" role="menuitem" tabindex="-1"
+          data-variant="destructive"&gt;Delete&lt;/button&gt;
 &lt;/div&gt;</code></pre>
         </div>
 
@@ -158,37 +163,148 @@
             <button class="copy-btn"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>Copy</button>
             <pre><code class="language-scss">@layer components {
   .context-menu-trigger {
-    display: flex; align-items: center; justify-content: center;
-    border: 2px dashed var(--border); border-radius: var(--radius-lg);
-    padding: 3rem; font-size: 0.875rem; color: var(--muted-foreground); cursor: default;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px dashed var(--border);
+    border-radius: var(--radius-lg);
+    padding: 3rem;
+    font-size: 0.875rem;
+    color: var(--muted-foreground);
+    cursor: default;
+
+    &amp;:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
   }
 
   .context-menu {
-    margin: 0; border: 1px solid var(--border); border-radius: var(--radius-lg);
-    background-color: var(--popover); color: var(--popover-foreground);
-    padding: 0.25rem; box-shadow: var(--shadow-md); min-width: 10rem;
-    opacity: 0; transform: scale(0.95);
-    transition: opacity 100ms ease, transform 100ms ease, display 100ms allow-discrete;
+    position: fixed;
+    inset: var(--menu-y, auto) auto auto var(--menu-x, auto);
+    margin: 0;
+    box-sizing: border-box;
+    border: none;
+    border-radius: var(--radius-lg);
+    background-color: var(--popover);
+    color: var(--popover-foreground);
+    padding: 0.25rem;
+    min-width: min(9rem, calc(100dvw - 1rem));
+    width: max-content;
+    max-width: calc(100dvw - 1rem);
+    max-height: calc(100dvh - 1rem);
+    overflow: auto;
+    overscroll-behavior: contain;
+    box-shadow: var(--shadow-md), 0 0 0 1px color-mix(in oklch, var(--foreground) 10%, transparent);
+    opacity: 0;
+    transition: opacity 100ms ease, display 100ms allow-discrete, overlay 100ms allow-discrete;
 
-    &amp;:popover-open { opacity: 1; transform: scale(1); }
+    &amp;[data-dropdown-panel=&quot;submenu&quot;] { min-width: min(6rem, calc(100dvw - 1rem)); }
+    &amp;:popover-open { opacity: 1; }
   }
 
   @starting-style {
-    .context-menu:popover-open { opacity: 0; transform: scale(0.95); }
+    .context-menu:popover-open { opacity: 0; }
   }
 
   .context-menu-item {
-    display: flex; align-items: center; gap: 0.5rem; width: 100%;
-    padding: 0.375rem 0.5rem; border: none; border-radius: var(--radius-md);
-    background: transparent; color: var(--popover-foreground);
-    font-size: 0.8125rem; font-family: inherit; text-align: left; cursor: pointer;
-    transition: background-color 100ms ease;
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    box-sizing: border-box;
+    width: 100%;
+    padding: 0.25rem 0.375rem;
+    border: none;
+    border-radius: var(--radius-md);
+    outline: none;
+    background: transparent;
+    color: var(--popover-foreground);
+    font: inherit;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    text-align: start;
+    cursor: default;
+    user-select: none;
 
-    &amp;:hover, &amp;[data-highlighted] { background-color: var(--accent); color: var(--accent-foreground); }
-    &amp;:focus-visible { outline: 2px solid var(--ring); outline-offset: -2px; }
+    &amp;[data-inset] { padding-inline-start: 1.75rem; }
+    &amp; &gt; svg { width: 1rem; height: 1rem; flex-shrink: 0; pointer-events: none; }
+    &amp;:is(:focus, [data-highlighted], [aria-expanded=&quot;true&quot;]) {
+      background-color: var(--accent);
+      color: var(--accent-foreground);
+    }
+    &amp;[data-variant=&quot;destructive&quot;] {
+      color: var(--destructive);
+      &amp;:is(:focus, [data-highlighted]) { background: color-mix(in oklch, var(--destructive) 10%, transparent); }
+    }
+    &amp;:is(:disabled, [aria-disabled=&quot;true&quot;], [data-disabled]) {
+      opacity: 0.5;
+      pointer-events: none;
+    }
   }
 
-  .context-menu-separator { height: 1px; background-color: var(--border); margin: 0.25rem -0.25rem; }
+  .dark .context-menu-item[data-variant=&quot;destructive&quot;]:is(:focus, [data-highlighted]) {
+    background: color-mix(in oklch, var(--destructive) 20%, transparent);
+  }
+
+  .context-menu-item[data-dropdown-submenu]::after {
+    content: '';
+    margin-inline-start: auto;
+    width: 0.375rem;
+    height: 0.375rem;
+    border-block-start: 1px solid currentColor;
+    border-inline-end: 1px solid currentColor;
+    rotate: 45deg;
+  }
+
+  .context-menu-item[data-dropdown-submenu]:dir(rtl)::after { rotate: -45deg; }
+
+  .context-menu-item:is([role=&quot;menuitemcheckbox&quot;], [role=&quot;menuitemradio&quot;]) {
+    position: relative;
+    padding-inline-end: 2rem;
+  }
+
+  .context-menu-item[aria-checked=&quot;true&quot;]::before {
+    content: '';
+    position: absolute;
+    inset-inline-end: 0.625rem;
+    top: 50%;
+    translate: 0 -60%;
+    width: 0.375rem;
+    height: 0.625rem;
+    border: solid currentColor;
+    border-width: 0 2px 2px 0;
+    rotate: 45deg;
+  }
+
+  .context-menu-label {
+    padding: 0.25rem 0.375rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--muted-foreground);
+  }
+
+  .context-menu-shortcut {
+    margin-inline-start: auto;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    color: var(--muted-foreground);
+  }
+
+  .context-menu-separator {
+    height: 1px;
+    background-color: var(--border);
+    margin: 0.25rem -0.25rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .context-menu { transition: none; }
+  }
+
+  @media (forced-colors: active) {
+    .context-menu { outline: 1px solid CanvasText; }
+    .context-menu-item:is(:focus, [data-highlighted]) {
+      forced-color-adjust: none;
+      background-color: Highlight;
+      color: HighlightText;
+    }
+  }
 }</code></pre>
           </div>
         </section>
@@ -196,32 +312,67 @@
         <!-- -- JavaScript -------------------------------- -->
         <section style="margin-top:3rem;" id="source-js">
           <h2 style="font-family:var(--font-display);font-size:1.5rem;font-weight:400;letter-spacing:-0.025em;margin:0 0 0.375rem;">JavaScript <a href="../components/context-menu/context-menu.js" target="_blank" style="font-size:0.75rem;font-weight:400;color:var(--muted-foreground);text-decoration:underline;text-underline-offset:3px;margin-left:0.5rem;">view file</a></h2>
-          <p class="text-muted-foreground text-sm mb-4">Interaction logic for the context-menu component. Uses data attributes for wiring.</p>
+          <p class="text-muted-foreground text-sm mb-4">Right-click or use Shift+F10 or the Context Menu key. The component shares positioning, keyboard navigation, and dismissal behavior with Dropdown Menu.</p>
           <div style="position:relative;margin-top:0.5rem;">
             <button class="copy-btn"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>Copy</button>
-            <pre><code class="language-javascript">// -- Context Menu ---------------------------------------------
-// Right-click context menu using the Popover API.
+            <pre><code class="language-javascript">import { openMenu } from '../dropdown/dropdown.js';
 
-function init() {
-  document.querySelectorAll('[data-context-menu]:not([data-init])').forEach((trigger) =&gt; {
-  trigger.dataset.init = '';
-  const menu = document.getElementById(trigger.dataset.contextMenu);
-  if (!menu) return;
-  trigger.addEventListener('contextmenu', (e) =&gt; {
-    e.preventDefault();
-    menu.style.position = 'fixed';
-    menu.style.top = `${e.clientY}px`;
-    menu.style.left = `${e.clientX}px`;
-    menu.showPopover();
-  });
-  menu.addEventListener('click', (e) =&gt; {
-    if (e.target.closest('.context-menu-item')) menu.hidePopover();
-  });
-});
+let openingPointer = null;
+let pendingOpen = null;
+
+document.addEventListener('pointerdown', event =&gt; {
+  if (event.button === 2 || (event.button === 0 &amp;&amp; event.ctrlKey)) {
+    openingPointer = event.pointerId;
+  }
+}, true);
+
+function finishOpeningPointer(event) {
+  if (event.pointerId !== openingPointer) return;
+  openingPointer = null;
+  if (!pendingOpen) return;
+  setTimeout(pendingOpen, 0);
+  pendingOpen = null;
 }
 
-init();
-new MutationObserver(init).observe(document, { childList: true, subtree: true });</code></pre>
+document.addEventListener('pointerup', finishOpeningPointer, true);
+document.addEventListener('pointercancel', finishOpeningPointer, true);
+
+function contextTarget(event) {
+  const trigger = event.target instanceof Element &amp;&amp; event.target.closest('[data-context-menu]');
+  if (!trigger) return null;
+  const menu = document.getElementById(trigger.dataset.contextMenu);
+  if (!menu?.hasAttribute('popover')) return null;
+  if (!menu.hasAttribute('role')) menu.setAttribute('role', 'menu');
+  return { trigger, menu };
+}
+
+document.addEventListener('contextmenu', event =&gt; {
+  if (event.defaultPrevented) return;
+  const target = contextTarget(event);
+  if (!target) return;
+  event.preventDefault();
+  const point = { x: event.clientX, y: event.clientY };
+  const open = () =&gt; {
+    if (target.trigger.isConnected &amp;&amp; target.menu.isConnected) {
+      openMenu(target.menu, target.trigger, { point });
+    }
+  };
+  // Some browsers dispatch contextmenu before pointerup. Wait for that gesture
+  // to end so native light dismissal does not immediately close the new menu.
+  if (openingPointer !== null) pendingOpen = open;
+  else setTimeout(open, 0);
+});
+
+document.addEventListener('keydown', event =&gt; {
+  if (event.defaultPrevented || event.isComposing) return;
+  if (event.key !== 'ContextMenu' &amp;&amp; !(event.shiftKey &amp;&amp; event.key === 'F10')) return;
+  const target = contextTarget(event);
+  if (!target) return;
+  event.preventDefault();
+  const anchor = target.trigger.getBoundingClientRect();
+  const x = getComputedStyle(target.trigger).direction === 'rtl' ? anchor.right : anchor.left;
+  openMenu(target.menu, target.trigger, { point: { x, y: anchor.bottom } });
+});</code></pre>
           </div>
         </section>
     </main>
@@ -260,23 +411,41 @@ new MutationObserver(init).observe(document, { childList: true, subtree: true })
 
 ## Native basis
 
-Popover API triggered by right-click.
-
-## Native Web APIs
-
-- [`popover` attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/popover) — native popover
-- [`contextmenu` event](https://developer.mozilla.org/en-US/docs/Web/API/Element/contextmenu_event) — right-click trigger
+The native Popover API handles the top layer and light dismissal. The
+`contextmenu` event opens at the pointer. Shift+F10 and the Context Menu key
+open at the focused trigger.
 
 ## Structure
 
 ```html
-<div class="context-menu-trigger" data-context-menu="my-ctx">Right click here</div>
-<div class="context-menu" id="my-ctx" popover>
-  <button class="context-menu-item" role="menuitem">Cut</button>
-  <button class="context-menu-item" role="menuitem">Copy</button>
-  <button class="context-menu-item" role="menuitem">Paste</button>
+<div class="context-menu-trigger" data-context-menu="edit-menu" tabindex="0"
+     aria-haspopup="menu" aria-expanded="false" aria-controls="edit-menu">
+  Right click or press Shift+F10
+</div>
+<div class="context-menu" id="edit-menu" role="menu" aria-label="Editing actions" popover>
+  <button type="button" class="context-menu-item" role="menuitem" tabindex="-1">Cut</button>
+  <button type="button" class="context-menu-item" role="menuitem" tabindex="-1" disabled>Paste</button>
+  <div class="context-menu-separator" role="separator"></div>
+  <button type="button" class="context-menu-item" role="menuitem" tabindex="-1"
+          data-variant="destructive">Delete</button>
 </div>
 ```
+
+Load the stylesheet and `context-menu.js` as a module. In a self-hosted copy,
+keep `../dropdown/dropdown.js` at its relative path because Context Menu imports
+shared placement, focus and keyboard behavior from it.
+
+## Behavior
+
+- Arrow keys, Home, End and typeahead navigate enabled items.
+- Enter and Space activate an item. Escape returns focus to the trigger.
+- An outside click dismisses the menu and preserves focus on the outside target.
+- Menu and submenu panels flip and shift inside the viewport in LTR and RTL.
+- A submenu uses `data-dropdown-submenu` on its opener and
+  `data-dropdown-panel="submenu"` on the nested popover inside its parent menu.
+- Use `role="menuitemcheckbox"` or `role="menuitemradio"` with `aria-checked`
+  for toggle and radio variants. Wrap each set of radio options in an
+  element with `role="group"`.
 </script>
 </body>
 </html>
