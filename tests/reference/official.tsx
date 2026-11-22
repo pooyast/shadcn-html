@@ -4,6 +4,7 @@ import { Input } from './upstream/input';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from './upstream/dialog';
 import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxList } from './upstream/combobox';
 import { Popover, PopoverContent, PopoverDescription, PopoverHeader, PopoverTitle, PopoverTrigger } from './upstream/popover';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from './upstream/dropdown-menu';
 import './official.css';
 
 const sizes = ['xs', 'sm', 'default', 'lg', 'icon-xs', 'icon-sm', 'icon', 'icon-lg'] as const;
@@ -51,6 +52,17 @@ createRoot(document.getElementById('root')!).render(
           <Input aria-label="Width" defaultValue="100%" />
         </PopoverContent>
       </Popover>
+    </section>
+    <section aria-label="Dropdown example">
+      <DropdownMenu>
+        <DropdownMenuTrigger render={<Button variant="outline" />}>Open actions</DropdownMenuTrigger>
+        <DropdownMenuContent aria-label="Actions">
+          <DropdownMenuItem>Edit</DropdownMenuItem>
+          <DropdownMenuItem disabled>Duplicate</DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </section>
     <section aria-label="Combobox example">
       <Combobox items={items}>

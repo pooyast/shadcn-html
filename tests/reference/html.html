@@ -9,11 +9,13 @@
 <link rel="stylesheet" href="../../dist/components/dialog/dialog.css">
 <link rel="stylesheet" href="../../dist/components/combobox/combobox.css">
 <link rel="stylesheet" href="../../dist/components/popover/popover.css">
+<link rel="stylesheet" href="../../dist/components/dropdown/dropdown.css">
 <link rel="stylesheet" href="./fixture.css">
 <script type="module" src="../../dist/components/dialog/dialog.js"></script>
 <script type="module" src="../../dist/components/combobox/combobox.js"></script>
 <script type="module" src="../../dist/components/tabs/tabs.js"></script>
 <script type="module" src="../../dist/components/popover/popover.js"></script>
+<script type="module" src="../../dist/components/dropdown/dropdown.js"></script>
 <script>
   if (new URLSearchParams(location.search).get('theme') === 'dark') document.documentElement.classList.add('dark');
 </script>
@@ -63,6 +65,16 @@
         <p class="popover-description">Set the dimensions for the layer.</p>
       </div>
       <input class="input" aria-label="Width" value="100%" autofocus>
+    </div>
+  </section>
+  <section aria-label="Dropdown example">
+    <button type="button" class="btn" data-variant="outline" data-dropdown-trigger="actions"
+            aria-haspopup="menu" aria-expanded="false" aria-controls="actions">Open actions</button>
+    <div class="dropdown-content" id="actions" role="menu" aria-label="Actions" popover>
+      <button type="button" class="dropdown-item" role="menuitem" tabindex="-1">Edit</button>
+      <button type="button" class="dropdown-item" role="menuitem" tabindex="-1" disabled>Duplicate</button>
+      <div class="dropdown-separator" role="separator"></div>
+      <button type="button" class="dropdown-item" role="menuitem" tabindex="-1" data-variant="destructive">Delete</button>
     </div>
   </section>
   <section aria-label="Combobox example">
